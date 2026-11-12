@@ -1,6 +1,6 @@
 import type { Project } from './projects';
 
-export const EMAIL = 'bonjour@adelloukal.fr'; // ← remplace par ton email
+export const EMAIL = 'adelloukal2@gmail.com';
 
 /** URL publique du site (SEO : sitemap, robots, canonical, Open Graph).
     Ordre : NEXT_PUBLIC_SITE_URL (à définir avec ton domaine) → domaine de production Vercel → local. */
