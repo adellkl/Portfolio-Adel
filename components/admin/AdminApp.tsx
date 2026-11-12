@@ -3,9 +3,9 @@
    panneau latéral (vue d'ensemble, rendez-vous, projets, ajouter un projet).
    Les rendez-vous et les projets sont écoutés ici, une fois, puis partagés entre les vues. */
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
+import { browserLocalPersistence, browserSessionPersistence, onAuthStateChanged, sendPasswordResetEmail, setPersistence, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
 import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { ArrowRight, CalendarDays, ExternalLink, FolderKanban, LayoutDashboard, LogOut, Plus } from 'lucide-react';
+import { ArrowRight, CalendarDays, ExternalLink, Eye, EyeOff, FolderKanban, LayoutDashboard, LogOut, Plus } from 'lucide-react';
 import { firebaseEnabled } from '@/lib/firebase';
 import { auth, db, type Appointment } from '@/lib/firebase-client';
 import { fromStored } from '@/lib/project-codec';
@@ -15,6 +15,11 @@ import { LEGAL } from '@/lib/site';
 import Appointments, { longDate, today, type AppointmentRow } from './Appointments';
 import Projects, { type ProjectRow } from './Projects';
 import ProjectEditor from './ProjectEditor';
+import { askConfirm, ConfirmHost } from './Confirm';
+
+const logout = async () => {
+  if (await askConfirm({ title: 'Se déconnecter ?', text: 'Vous devrez saisir à nouveau vos identifiants pour revenir sur le dashboard.', confirm: 'Se déconnecter', tone: 'neutral' })) signOut(auth());
+};
 
 type Tab = 'apercu' | 'rdv' | 'projets' | 'nouveau';
 
@@ -89,10 +94,11 @@ function Dashboard({ user }: { user: User }) {
         <div className="adm-user">
           <span className="adm-me" title={user.email ?? ''}><i>{(user.email ?? '?')[0].toUpperCase()}</i><span>{user.email}</span></span>
           <a className="adm-side-link" href="/" target="_blank" rel="noopener"><ExternalLink size={15} strokeWidth={1.6} /><span>Voir le site</span></a>
-          <button className="adm-side-link" onClick={() => signOut(auth())}><LogOut size={15} strokeWidth={1.6} /><span>Déconnexion</span></button>
+          <button className="adm-side-link" onClick={logout}><LogOut size={15} strokeWidth={1.6} /><span>Déconnexion</span></button>
         </div>
       </aside>
 
+      <ConfirmHost />
       <main className="adm-main">
         {tab === 'apercu' ? <Overview rdv={rdv} projects={projects} go={go} /> : null}
         {tab === 'rdv' ? <Appointments rows={rdv} error={error} /> : null}
@@ -185,16 +191,27 @@ function Notice({ title, children }: { title: string; children: ReactNode }) {
   return <div className="adm-notice"><h2>{title}</h2><div className="adm-muted">{children}</div></div>;
 }
 
+// « Se souvenir de moi » : la session Firebase est gardée dans le navigateur (jeton renouvelé
+// automatiquement, jamais le mot de passe). Décoché, elle s'efface à la fermeture de l'onglet.
+const REMEMBER_KEY = 'adm-remember';
+// Login n'est rendu qu'après la vérification Firebase, donc toujours côté navigateur.
+const savedLogin = () => { try { return typeof window === 'undefined' ? null : localStorage.getItem(REMEMBER_KEY); } catch { return null; } };
+
 function Login() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => savedLogin() || '');
   const [password, setPassword] = useState('');
+  const [show, setShow] = useState(false);
+  const [remember, setRemember] = useState(() => savedLogin() !== '');
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); setMsg(null);
-    try { await signInWithEmailAndPassword(auth(), email.trim(), password); }
-    catch { setMsg({ ok: false, text: 'Identifiants incorrects.' }); }
+    try {
+      await setPersistence(auth(), remember ? browserLocalPersistence : browserSessionPersistence);
+      await signInWithEmailAndPassword(auth(), email.trim(), password);
+      try { localStorage.setItem(REMEMBER_KEY, remember ? email.trim() : ''); } catch { /* stockage indisponible */ }
+    } catch { setMsg({ ok: false, text: 'Identifiants incorrects.' }); }
     setBusy(false);
   };
   const reset = async () => {
@@ -207,7 +224,16 @@ function Login() {
     <form className="adm-login" onSubmit={submit}>
       <h2>Connexion</h2>
       <input type="email" placeholder="E-mail" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required aria-label="E-mail" />
-      <input type="password" placeholder="Mot de passe" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required aria-label="Mot de passe" />
+      <div className="adm-pw">
+        <input type={show ? 'text' : 'password'} placeholder="Mot de passe" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required aria-label="Mot de passe" />
+        <button type="button" onClick={() => setShow(v => !v)} aria-label={show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={show} title={show ? 'Masquer' : 'Afficher'}>
+          {show ? <EyeOff size={16} strokeWidth={1.6} /> : <Eye size={16} strokeWidth={1.6} />}
+        </button>
+      </div>
+      <label className="adm-toggle">
+        <input type="checkbox" role="switch" checked={remember} onChange={e => setRemember(e.target.checked)} />
+        <i aria-hidden="true"></i><span>Se souvenir de moi</span>
+      </label>
       <button className="btn-lime" type="submit" disabled={busy}>{busy ? 'Connexion…' : 'Se connecter'}</button>
       <button type="button" className="adm-link" onClick={reset}>Mot de passe oublié ?</button>
       {msg ? <p className={msg.ok ? 'adm-ok' : 'adm-err'}>{msg.text}</p> : null}

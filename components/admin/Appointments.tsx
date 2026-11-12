@@ -5,6 +5,7 @@ import { deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Check, Mail, Trash2, X } from 'lucide-react';
 import { db, type Appointment } from '@/lib/firebase-client';
 import { BOOKING } from '@/lib/site';
+import { askConfirm } from './Confirm';
 
 export type AppointmentRow = Appointment & { id: string };
 type Row = AppointmentRow;
@@ -46,7 +47,7 @@ export default function Appointments({ rows, error }: { rows: Row[] | null; erro
     } else await updateDoc(doc(db(), 'appointments', r.id), { status });
   };
   const remove = async (r: Row) => {
-    if (!confirm(`Supprimer définitivement la demande de ${r.name} (${longDate(r.date)} à ${r.time}) ?`)) return;
+    if (!await askConfirm({ title: 'Supprimer ce rendez-vous ?', text: `La demande de ${r.name} (${longDate(r.date)} à ${r.time}) sera effacée et le créneau libéré. Cette action est définitive.`, confirm: 'Supprimer' })) return;
     await deleteDoc(doc(db(), 'appointments', r.id));
     await deleteDoc(doc(db(), 'slots', r.id)).catch(() => {});
   };

@@ -10,6 +10,7 @@ import { projectHref } from '@/lib/site';
 import ProjectEditor, { type Draft } from './ProjectEditor';
 import { toStored } from '@/lib/project-codec';
 import { galleryImage } from '@/components/visuals';
+import { askConfirm } from './Confirm';
 
 export type ProjectRow = Draft & { order: number; published: boolean };
 type Row = ProjectRow;
@@ -42,7 +43,7 @@ export default function Projects({ rows, error: loadError, onNew }: { rows: Row[
   };
   const togglePublish = (r: Row) => updateDoc(doc(db(), 'projects', r.slug), { published: !r.published }).then(refreshSite);
   const remove = async (r: Row) => {
-    if (!confirm(`Supprimer le projet « ${r.title} » ? Sa page disparaîtra du site et ses photos envoyées seront effacées.`)) return;
+    if (!await askConfirm({ title: `Supprimer « ${r.title} » ?`, text: 'Sa page disparaîtra du site et les photos envoyées depuis le dashboard seront effacées. Cette action est définitive.', confirm: 'Supprimer le projet' })) return;
     await deleteDoc(doc(db(), 'projects', r.slug));
     refreshSite();
     // Photos envoyées depuis le dashboard (les captures d'origine du site restent dans le code)
