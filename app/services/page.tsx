@@ -7,7 +7,7 @@ import Quiz from '@/components/services/Quiz';
 import CtaBlock from '@/components/CtaBlock';
 import { FaqSection } from '@/components/ui/faq-section';
 import { getProjects } from '@/lib/data';
-import { COMMITS, TESTS, onlineCount, projectHref } from '@/lib/site';
+import { onlineCount, projectHref } from '@/lib/site';
 
 export const metadata: Metadata = pageMeta('Services — Adel Loukal', 'Sites vitrines, applications web sur mesure, réservation et paiement, espaces clients, e-commerce et refontes : ce que je peux construire pour vous, et comment.', '/services');
 
@@ -37,7 +37,13 @@ const services: [string, string, string[], [string, string][]][] = [
 
 export default async function ServicesPage() {
   const projects = await getProjects();
-  const counters: [number, string, string][] = [[projects.length, '', 'projets réalisés'], [COMMITS, '', 'commits en un an'], [TESTS, '', 'fichiers de tests automatisés'], [onlineCount(projects), '', 'sites en ligne']];
+  // Chiffres parlants pour un client : [valeur, suffixe, libellé, préfixe]
+  const counters: [number, string, string, string?][] = [
+    [onlineCount(projects), '', 'sites livrés et en ligne'],
+    [60, ' %', 'de réservations en plus pour Lebsa Danah', '+'],
+    [3, ' sem.', 'maximum pour livrer un site complexe'],
+    [1, '', 'seul interlocuteur, du design à la mise en ligne'],
+  ];
   const refs = projects.map(p => ({ slug: p.slug, title: p.title, tagline: p.tagline }));
   return (
     <>
@@ -73,7 +79,7 @@ export default async function ServicesPage() {
           <div className="process">
             <Steps />
             <div className="counters" id="counters">
-              {counters.map(([v, s, l], i) => <div className="panel counter reveal" style={d(`${i * .06}s`)} key={l}><b data-count={v} data-suffix={s}>0</b><span>{l}</span></div>)}
+              {counters.map(([v, s, l, pre], i) => <div className="panel counter reveal" style={d(`${i * .06}s`)} key={l}><b data-count={v} data-suffix={s} data-prefix={pre}>{`${pre ?? ''}0${s}`}</b><span>{l}</span></div>)}
             </div>
           </div>
         </div>

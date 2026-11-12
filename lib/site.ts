@@ -21,9 +21,6 @@ export const LEGAL = {
   since: '18 juillet 2026',
   host: { name: 'Vercel Inc.', address: '440 N Barranca Ave #4133, Covina, CA 91723, États-Unis', url: 'https://vercel.com' },
 };
-// Commits des dépôts : Alpha Fight Club 26, Lebsa Danah 91, La Marine 187, Class Gallery 32
-// (Test Psychotechnique Permis : pas de dépôt local). Tests : 16 fichiers (Lebsa Danah).
-export const COMMITS = 26 + 91 + 187 + 32, TESTS = 16;
 
 export const onlineCount = (projects: Project[]) => projects.filter(p => p.status === 'En ligne').length;
 

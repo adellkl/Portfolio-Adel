@@ -12,17 +12,33 @@ export default function Nav() {
   const isHome = pathname === '/';
   const home = isHome ? '' : '/';
   const page = pathname.startsWith('/projets/') ? 'projet' : pathname.split('/').pop();
-  const cur = (p: string) => (page === p ? 'cur' : undefined);
   const [open, setOpen] = useState(false);
+  const [section, setSection] = useState<string | null>(null); // section visible sur l'accueil
   const burger = useRef<HTMLButtonElement>(null);
+
+  /* Lien actif : un seul à la fois. Sur l'accueil, celui de la section visible (recalculé au défilement) ;
+     ailleurs, celui de la page. Entièrement géré par React (plus de classes posées à la main). */
+  const HOME_LINKS: Record<string, string> = { projets: 'projet' };
+  const active = isHome ? (section ? HOME_LINKS[section] ?? null : null) : page;
+  const cur = (p: string) => (active === p ? 'cur' : undefined);
 
   useEffect(() => {
     const nav = $('#nav');
-    if (!nav) return;
-    const on = () => { nav.classList.toggle('scrolled', scrollY > 10); };
-    addEventListener('scroll', on, { passive: true }); on();
-    return () => removeEventListener('scroll', on);
-  }, [pathname]);
+    let raf = 0;
+    const on = () => {
+      nav?.classList.toggle('scrolled', scrollY > 10);
+      if (!isHome) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        // section qui traverse la ligne à 45 % de la hauteur de l'écran
+        const line = innerHeight * .45;
+        const hit = [...document.querySelectorAll<HTMLElement>('section[id]')].find(el => { const r = el.getBoundingClientRect(); return r.top <= line && r.bottom > line; });
+        setSection(hit?.id ?? null);
+      });
+    };
+    addEventListener('scroll', on, { passive: true }); addEventListener('resize', on); on();
+    return () => { cancelAnimationFrame(raf); removeEventListener('scroll', on); removeEventListener('resize', on); };
+  }, [pathname, isHome]);
 
   /* Menu : verrouillage du scroll, Échap, fermeture au changement de page ou en passant sur grand écran */
   useEffect(() => {

@@ -6,7 +6,6 @@ import { getProjects } from '@/lib/data';
 import Teasers from '@/components/home/Teasers';
 import { LetsWorkTogether } from '@/components/ui/lets-work-section';
 import { FaqSection } from '@/components/ui/faq-section';
-import NavSpy from '@/components/home/NavSpy';
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
 
@@ -37,7 +36,6 @@ export default async function HomePage() {
       <section className="contact lwt-section" id="contact">
         <div className="wrap"><LetsWorkTogether /></div>
       </section>
-      <NavSpy />
     </>
   );
 }
