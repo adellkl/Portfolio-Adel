@@ -10,7 +10,7 @@ import { COLORS, type ColorKey } from '@/lib/projects';
 const issues: [string, string, ColorKey, string][] = [
   ['MAR-142', 'Badges des réservations non lues', 'coral', 'La Marine'], ['AFC-031', 'Page vidéos YouTube', 'iris', 'Alpha Fight Club'],
   ['LEB-088', 'Rendez-vous d\'essayage', 'green', 'Lebsa Danah'], ['CGP-027', 'Pré-rendu des pages œuvres', 'lav', 'Class Gallery'],
-  ['TPP-012', 'Prise de rendez-vous 24h/24', 'teal', 'Test Psychotechnique'], ['MAR-156', 'Traductions anglaises DeepL', 'coral', 'La Marine'],
+  ['TPP-012', 'Prise de rendez-vous 24h/24', 'teal', 'Test Psychotechnique'], ['LIV-219', 'Paiement Stripe par webhook', 'iris', 'Mon Livret'],
 ];
 
 /* Formules du titre (ligne grise) : toutes tiennent sur une ligne à 72 px (< 820 px, mesuré) */

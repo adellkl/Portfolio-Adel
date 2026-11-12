@@ -33,6 +33,30 @@ export default function Projects({ rows, error: loadError, onNew }: { rows: Row[
     await b.commit().then(refreshSite).catch(e => setError(e.message));
     setBusy(false);
   };
+  // Projets ajoutés dans le code mais pas encore dans la base (ex. un nouveau projet) : placés à leur rang du code
+  const missing = rows?.length ? PROJECTS.filter(p => !rows.some(r => r.slug === p.slug)) : [];
+  const syncMissing = async () => {
+    if (!rows) return;
+    setBusy(true); setError('');
+    const placed = [...rows.map(r => ({ slug: r.slug, order: r.order ?? 99, isNew: false }))];
+    missing.forEach(p => {
+      const i = PROJECTS.indexOf(p);
+      const after = [...PROJECTS.slice(0, i)].reverse().map(q => placed.find(x => x.slug === q.slug)).find(Boolean);
+      const before = PROJECTS.slice(i + 1).map(q => placed.find(x => x.slug === q.slug)).find(Boolean);
+      const order = after && before ? (after.order + before.order) / 2 : after ? after.order + 1 : before ? before.order - 1 : placed.length + 1;
+      placed.push({ slug: p.slug, order, isNew: true });
+    });
+    // Ordre 1, 2, 3… et identifiants PRJ-01… recalculés pour tous
+    placed.sort((a, b) => a.order - b.order);
+    const b = writeBatch(db());
+    placed.forEach((x, i) => {
+      const id = `PRJ-${String(i + 1).padStart(2, '0')}`;
+      if (x.isNew) b.set(doc(db(), 'projects', x.slug), toStored({ ...PROJECTS.find(p => p.slug === x.slug)!, id, order: i + 1, published: true }));
+      else b.update(doc(db(), 'projects', x.slug), { order: i + 1, id });
+    });
+    await b.commit().then(refreshSite).catch(e => setError(e.message));
+    setBusy(false);
+  };
   const move = async (i: number, dir: -1 | 1) => {
     if (!rows) return;
     const a = rows[i], c = rows[i + dir]; if (!c) return;
@@ -57,10 +81,16 @@ export default function Projects({ rows, error: loadError, onNew }: { rows: Row[
         <button className="btn-lime adm-cta" onClick={onNew}><Plus size={16} />Ajouter un projet</button>
       </div>
       {error ? <p className="adm-err">{error}</p> : null}
+      {missing.length ? (
+        <div className="adm-sync panel">
+          <p><b>{missing.length > 1 ? `${missing.length} nouveaux projets` : 'Un nouveau projet'}</b>{` du code ${missing.length > 1 ? 'ne sont' : 'n\'est'} pas encore sur le site : ${missing.map(p => p.title).join(', ')}.`}</p>
+          <button className="btn-lime" onClick={syncMissing} disabled={busy}><Plus size={15} />{busy ? 'Ajout…' : missing.length > 1 ? 'Les ajouter' : 'L\'ajouter'}</button>
+        </div>
+      ) : null}
       {!rows ? <p className="adm-muted">Chargement…</p> : !rows.length ? (
         <div className="adm-empty panel">
-          <p>Aucun projet dans la base. Le site affiche pour l&apos;instant les 5 projets du code.</p>
-          <button className="ghost" onClick={importCurrent} disabled={busy}>{busy ? 'Import…' : 'Importer les 5 projets actuels'}</button>
+          <p>Aucun projet dans la base. Le site affiche pour l&apos;instant les {PROJECTS.length} projets du code.</p>
+          <button className="ghost" onClick={importCurrent} disabled={busy}>{busy ? 'Import…' : `Importer les ${PROJECTS.length} projets actuels`}</button>
         </div>
       ) : (
         <ul className="adm-cards">

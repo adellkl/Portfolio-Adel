@@ -6,6 +6,26 @@ import { COLORS, type ColorKey, type Project, type VisualKey } from '@/lib/proje
 
 const v = (o: Record<string, string | number>) => o as CSSProperties;
 
+/* Mon Livret : port 1:1 du visuel « livret » de reference/projects.js */
+export function Livret() {
+  return (
+    <div className="viz-mobile" data-viz="livret">
+      <div className="phone">
+        <div className="notch"></div>
+        <h6>Bienvenue à l&apos;Atelier</h6><div className="sub">Votre livret · Lyon 2e</div>
+        <div className="days"><span className="on">Arrivée</span><span>Séjour</span><span>Départ</span></div>
+        {[['Wi-Fi', 'Atelier-Guest'], ['Arrivée', 'dès 16:00'], ['Itinéraire', '12 min à pied'], ['Signaler', 'un problème']].map(([a, b], i) =>
+          <div className="slot" style={v({ '--i': i })} key={i}>{a}<span>{b}</span></div>)}
+        <button className="cta" style={{ width: '100%', border: 0, cursor: 'pointer', fontFamily: 'inherit' }}>Contacter l&apos;hôte</button>
+      </div>
+      <div className="mobile-side">
+        {([['LIV-01', 'Traduction anglaise validée', 'lav', 'DeepL'], ['LIV-02', 'Collaborateur invité · édition', 'iris', 'Business'], ['LIV-03', 'Abonnement activé par webhook', 'green', 'Stripe']] as [string, string, ColorKey, string][]).map(([id, t, c, l], i) =>
+          <div className="card" style={v({ '--i': i })} key={i}><span className="id mono">{id}</span><p>{t}</p><div className="tags"><span className="tag"><i style={{ background: COLORS[c] }}></i>{l}</span></div></div>)}
+      </div>
+    </div>
+  );
+}
+
 /* Test Psychotechnique Permis : structure « téléphone » (.viz-mobile) */
 export function Permis() {
   return (
@@ -73,7 +93,7 @@ export function Catalogue() {
 }
 
 export const VISUALS: Record<Exclude<VisualKey, 'image'>, () => JSX.Element> = {
-  planning: Planning, calendar: Calendar, reservations: Reservations, catalogue: Catalogue, permis: Permis,
+  livret: Livret, planning: Planning, calendar: Calendar, reservations: Reservations, catalogue: Catalogue, permis: Permis,
 };
 
 /** Image de couverture d'un projet (1re photo de la galerie) */

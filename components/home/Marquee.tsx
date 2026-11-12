@@ -1,5 +1,5 @@
 /* Outils (tirés des projets), en 3 copies pour une boucle sans fin, même sur très grand écran */
-const tools = ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Vite', 'Supabase', 'Vercel', 'GSAP', 'Framer Motion', 'Motion', 'Express', 'DeepL API', 'Resend'];
+const tools = ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Vite', 'Supabase', 'Firebase', 'Stripe', 'Vercel', 'GSAP', 'Framer Motion', 'Motion', 'Express', 'DeepL API', 'Resend'];
 
 export default function Marquee() {
   return (

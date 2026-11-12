@@ -5,9 +5,9 @@
    ========================================================= */
 export const COLORS = {teal:'var(--teal)',iris:'var(--iris)',lav:'var(--lav)',green:'var(--green)',coral:'var(--coral)'} as const;
 export type ColorKey = keyof typeof COLORS;
-export type VisualKey = 'planning' | 'calendar' | 'reservations' | 'catalogue' | 'permis' | 'image';
+export type VisualKey = 'livret' | 'planning' | 'calendar' | 'reservations' | 'catalogue' | 'permis' | 'image';
 /** Polices des chartes (chargées sur les pages projet uniquement, components/Charte.tsx) */
-export type FontKey = 'newsreader' | 'schibsted' | 'plexmono' | 'caveat' | 'cormorant' | 'montserrat' | 'roboto' | 'inter' | 'system';
+export type FontKey = 'geist' | 'figtree' | 'newsreader' | 'schibsted' | 'plexmono' | 'caveat' | 'cormorant' | 'montserrat' | 'roboto' | 'inter' | 'system';
 export const lc = (s: string) => s[0].toLowerCase() + s.slice(1);
 
 export type Project = {
@@ -31,7 +31,30 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    slug:'alpha-fight-club', id:'PRJ-01', title:'Alpha Fight Club', tagline:'Le site d\'un club de grappling à Saint-Ouen',
+    slug:'mon-livret', id:'PRJ-01', title:'Mon Livret', tagline:'Le livret d\'accueil numérique pour les hôtes Airbnb',
+    category:'SaaS', year:'2026', period:'Juil. → oct. 2026', status:'En ligne', role:'Conception, design & développement',
+    client:'Projet personnel', url:'https://monlivret.eu', urlLabel:'monlivret.eu',
+    stack:[['Next.js','teal'],['Firebase','coral'],['Stripe','iris'],['DeepL','lav']],
+    visual:'livret',
+    summary:"Un SaaS qui remplace le classeur papier des locations saisonnières : chaque logement a son livret en ligne, ouvert par lien ou QR code, avec l'arrivée, le Wi-Fi, les équipements, les bonnes adresses et le départ.",
+    context:"Les hôtes Airbnb répondent sans cesse aux mêmes questions : code d'accès, Wi-Fi, plaque de cuisson, heure de départ. Mon Livret centralise tout dans un <strong>livret web propre à chaque logement</strong>, que le voyageur ouvre sur son téléphone sans application, et donne à l'hôte <strong>un espace pour tout gérer</strong>, du studio à la conciergerie.",
+    problems:[["Un parcours voyageur clair, en trois temps : arrivée, séjour, départ","green","UX"],["Des abonnements payants fiables, activés uniquement par webhook Stripe signé","iris","Paiement"],["Des conciergeries qui partagent les logements en équipe, avec des droits différents","lav","Business"]],
+    approach:[
+      ["Le voyageur d'abord","Un livret pensé pour le téléphone : arrivée expliquée dans l'ordre, Wi-Fi dès l'ouverture, équipements, bonnes adresses, contact de l'hôte et liste des gestes avant le départ."],
+      ["Un prix selon le parc","Un logement gratuit sans carte bancaire, puis Pro facturé au nombre de logements, avec deux mois offerts à l'année. Les quotas sont contrôlés côté serveur, jamais seulement dans l'interface."],
+      ["Un espace pour les conciergeries","Dès dix logements : comptes d'équipe avec des rôles, consignes communes à plusieurs logements, interventions et rapports pour les propriétaires."],
+      ["Traductions maîtrisées","Version anglaise traduite avec DeepL, gardée en brouillon jusqu'à relecture par l'hôte. Les codes d'accès et les coordonnées ne sont jamais envoyés au traducteur."],
+    ],
+    results:[[10,' min','pour préparer un livret'],[1,'','logement gratuit, sans carte bancaire'],[2,'','langues, français et anglais']],
+    gallery: [["Accueil", 'd'], ["Le séjour sur le téléphone", 'd'], ["Bonnes adresses et activités", 'd'], ["Accueil sur mobile", 'm'], ["Le livret voyageur sur mobile", 'm']],
+    charte: {
+      intent: "Un accueil chaleureux et rassurant : un fond lin, un vert forêt presque noir pour le texte et les boutons, et une touche de terracotta pour les mots qui comptent et l'action principale.",
+      fonts: [["Titres", "geist", "Geist · grotesque net, graisse 500"], ["Texte et boutons", "figtree", "Figtree · ronde et lisible sur mobile"]],
+      colors: [["Lin", "#F8F5F1", "Fond principal"], ["Sable", "#F3EEE8", "Sections et cartes"], ["Forêt", "#1F2925", "Titres et boutons"], ["Sauge", "#5F6863", "Texte"], ["Terracotta", "#B9532F", "Accent et bouton principal"]],
+    },
+  },
+  {
+    slug:'alpha-fight-club', id:'PRJ-02', title:'Alpha Fight Club', tagline:'Le site d\'un club de grappling à Saint-Ouen',
     category:'Site associatif', year:'2026', period:'Oct. → nov. 2026', status:'En ligne', role:'Direction artistique & développement',
     client:'Alpha Fight Club, Saint-Ouen', url:'https://www.alphafightclub.com', urlLabel:'alphafightclub.com',
     stack:[['Next.js 16','teal'],['React 19','iris'],['Tailwind 4','lav'],['TypeScript']],
@@ -54,7 +77,7 @@ export const PROJECTS: Project[] = [
     },
   },
   {
-    slug:'lebsa-danah', id:'PRJ-02', title:'Lebsa Danah', tagline:'Site, boutique et réservations d\'un showroom de caftans',
+    slug:'lebsa-danah', id:'PRJ-03', title:'Lebsa Danah', tagline:'Site, boutique et réservations d\'un showroom de caftans',
     category:'Site vitrine & réservation', year:'2026', period:'Juin → nov. 2026', status:'En ligne', role:'Design & développement',
     client:'Lebsa Danah, Eaubonne', url:'https://www.lebsadanah.fr', urlLabel:'lebsadanah.fr',
     stack:[['React','teal'],['Supabase','green'],['GSAP','iris'],['PWA']],
@@ -77,7 +100,7 @@ export const PROJECTS: Project[] = [
     },
   },
   {
-    slug:'la-marine', id:'PRJ-03', title:'La Marine', tagline:'Le site d\'un restaurant gastronomique sur l\'île de Groix',
+    slug:'la-marine', id:'PRJ-04', title:'La Marine', tagline:'Le site d\'un restaurant gastronomique sur l\'île de Groix',
     category:'Site vitrine & réservation', year:'2026', period:'Déc. 2025 → août 2026', status:'En ligne', role:'Design & développement',
     client:'Restaurant La Marine, Île de Groix', url:'https://www.lamarinegroix.com', urlLabel:'lamarinegroix.com',
     stack:[['React','teal'],['Supabase','green'],['GSAP','iris'],['DeepL','lav']],
@@ -100,7 +123,7 @@ export const PROJECTS: Project[] = [
     },
   },
   {
-    slug:'class-gallery', id:'PRJ-04', title:'Class Gallery', tagline:'Le site et le catalogue d\'une galerie d\'art à Paris',
+    slug:'class-gallery', id:'PRJ-05', title:'Class Gallery', tagline:'Le site et le catalogue d\'une galerie d\'art à Paris',
     category:'Site vitrine & catalogue', year:'2026', period:'Juin → juil. 2026', status:'En ligne', role:'Design & développement',
     client:'CLASS GALLERY-Paris, Paris 6e', url:'https://www.classgalleryparis.com', urlLabel:'classgalleryparis.com',
     stack:[['React','teal'],['Vite','iris'],['Tailwind CSS','lav'],['Motion']],
@@ -123,7 +146,7 @@ export const PROJECTS: Project[] = [
     },
   },
   {
-    slug:'test-psychotechnique', id:'PRJ-05', title:'Test Psychotechnique Permis', tagline:'La prise de rendez-vous d\'un centre de tests psychotechniques',
+    slug:'test-psychotechnique', id:'PRJ-06', title:'Test Psychotechnique Permis', tagline:'La prise de rendez-vous d\'un centre de tests psychotechniques',
     category:'Site vitrine & réservation', year:'2025', period:'2025', status:'En ligne', role:'Design & développement',
     client:'Centre 2e Chance, Colombes', url:'https://test-psychotechnique-permis.com', urlLabel:'test-psychotechnique-permis.com',
     stack:[['Next.js','teal']],

@@ -11,7 +11,7 @@ import { toStored } from '@/lib/project-codec';
 export type Draft = Project;
 const COLOR_KEYS = Object.keys(COLORS) as ColorKey[];
 const STATUSES = ['En ligne', 'En développement', 'Outil privé', 'Terminé'];
-const VISUAL_OPTIONS: [VisualKey, string][] = [['image', '1re photo de la galerie'], ['planning', 'Maquette : planning'], ['calendar', 'Maquette : calendrier'], ['reservations', 'Maquette : réservations'], ['catalogue', 'Maquette : catalogue'], ['permis', 'Maquette : téléphone']];
+const VISUAL_OPTIONS: [VisualKey, string][] = [['image', '1re photo de la galerie'], ['planning', 'Maquette : planning'], ['calendar', 'Maquette : calendrier'], ['reservations', 'Maquette : réservations'], ['catalogue', 'Maquette : catalogue'], ['permis', 'Maquette : téléphone'], ['livret', 'Maquette : livret (téléphone)']];
 
 const slugify = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 

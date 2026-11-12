@@ -1,9 +1,11 @@
 import type { CSSProperties } from 'react';
-import { Caveat, Cormorant_Garamond, IBM_Plex_Mono, Montserrat, Newsreader, Roboto, Schibsted_Grotesk } from 'next/font/google';
+import { Caveat, Cormorant_Garamond, Figtree, Geist, IBM_Plex_Mono, Montserrat, Newsreader, Roboto, Schibsted_Grotesk } from 'next/font/google';
 import type { FontKey, Project } from '@/lib/projects';
 
 /* Charte graphique d'un projet : intention, typographies (spécimens dans la vraie police) et couleurs.
    Les polices ne sont chargées que sur les pages projet (pas de préchargement). */
+const geist = Geist({ subsets: ['latin'], display: 'swap', preload: false, weight: '500' });
+const figtree = Figtree({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
 const newsreader = Newsreader({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
 const schibsted = Schibsted_Grotesk({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
 const plexmono = IBM_Plex_Mono({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
@@ -13,6 +15,8 @@ const montserrat = Montserrat({ subsets: ['latin'], display: 'swap', preload: fa
 const roboto = Roboto({ subsets: ['latin'], display: 'swap', preload: false, weight: ['400', '600'] });
 
 const FAMILY: Record<FontKey, { name: string; style: CSSProperties }> = {
+  geist: { name: 'Geist', style: { ...geist.style, fontWeight: 500 } },
+  figtree: { name: 'Figtree', style: figtree.style },
   newsreader: { name: 'Newsreader', style: newsreader.style },
   schibsted: { name: 'Schibsted Grotesk', style: schibsted.style },
   plexmono: { name: 'IBM Plex Mono', style: { ...plexmono.style, textTransform: 'uppercase', letterSpacing: '.04em' } },

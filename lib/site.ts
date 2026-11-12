@@ -35,13 +35,13 @@ export const KEYS: Record<string, string> = { h: '/', p: '/#projets', a: '/aprop
 
 /** Outil → projets qui l'utilisent (À propos) */
 export const USES: Record<string, string[]> = {
-  React: ['alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery', 'test-psychotechnique'], 'Next.js': ['alpha-fight-club', 'test-psychotechnique'],
-  TypeScript: ['alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery'], 'Tailwind CSS': ['alpha-fight-club', 'lebsa-danah', 'class-gallery'],
-  Supabase: ['lebsa-danah', 'la-marine'], PostgreSQL: ['lebsa-danah', 'la-marine'], API: ['alpha-fight-club', 'lebsa-danah', 'la-marine'],
-  Vercel: ['alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery'], 'Hébergement': ['alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery'],
-  Domaines: ['alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery', 'test-psychotechnique'], 'E-mails transactionnels': ['lebsa-danah', 'la-marine'],
-  'Réservation': ['lebsa-danah', 'la-marine', 'test-psychotechnique'], 'Paiement en ligne': ['lebsa-danah'], Authentification: ['lebsa-danah', 'la-marine'],
-  Administration: ['lebsa-danah', 'la-marine'], Formulaires: ['lebsa-danah', 'la-marine', 'class-gallery'], Automatisations: ['lebsa-danah', 'la-marine'],
+  React: ['mon-livret', 'alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery', 'test-psychotechnique'], 'Next.js': ['mon-livret', 'alpha-fight-club', 'test-psychotechnique'],
+  TypeScript: ['mon-livret', 'alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery'], 'Tailwind CSS': ['alpha-fight-club', 'lebsa-danah', 'class-gallery'],
+  Supabase: ['lebsa-danah', 'la-marine'], Firebase: ['mon-livret'], PostgreSQL: ['lebsa-danah', 'la-marine'], API: ['alpha-fight-club', 'lebsa-danah', 'la-marine'],
+  Vercel: ['mon-livret', 'alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery'], 'Hébergement': ['mon-livret', 'alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery'],
+  Domaines: ['mon-livret', 'alpha-fight-club', 'lebsa-danah', 'la-marine', 'class-gallery', 'test-psychotechnique'], 'E-mails transactionnels': ['lebsa-danah', 'la-marine'],
+  'Réservation': ['lebsa-danah', 'la-marine', 'test-psychotechnique'], 'Paiement en ligne': ['mon-livret', 'lebsa-danah'], Authentification: ['mon-livret', 'lebsa-danah', 'la-marine'],
+  Administration: ['mon-livret', 'lebsa-danah', 'la-marine'], Formulaires: ['lebsa-danah', 'la-marine', 'class-gallery'], Automatisations: ['lebsa-danah', 'la-marine'],
 };
 
 /** Types de projet du brief de contact : [libellé, projet comparable] */
