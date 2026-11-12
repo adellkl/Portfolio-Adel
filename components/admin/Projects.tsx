@@ -1,30 +1,28 @@
 'use client';
 /* Projets : liste (ordre, publication), import des projets actuels, ajout / édition / suppression. */
-import { useEffect, useState } from 'react';
-import { collection, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from 'firebase/firestore';
+import { useState } from 'react';
+import { deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { deleteObject, listAll, ref } from 'firebase/storage';
-import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ExternalLink, Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react';
 import { db, refreshSite, storage } from '@/lib/firebase-client';
 import { PROJECTS, type Project } from '@/lib/projects';
 import { projectHref } from '@/lib/site';
 import ProjectEditor, { type Draft } from './ProjectEditor';
-import { fromStored, toStored } from '@/lib/project-codec';
+import { toStored } from '@/lib/project-codec';
+import { galleryImage } from '@/components/visuals';
 
-type Row = Draft & { order: number; published: boolean };
+export type ProjectRow = Draft & { order: number; published: boolean };
+type Row = ProjectRow;
 
-export default function Projects() {
-  const [rows, setRows] = useState<Row[] | null>(null);
-  const [error, setError] = useState('');
-  const [editing, setEditing] = useState<Row | 'new' | null>(null);
+export default function Projects({ rows, error: loadError, onNew }: { rows: Row[] | null; error: string; onNew: () => void }) {
+  const [editing, setEditing] = useState<Row | null>(null);
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => onSnapshot(collection(db(), 'projects'),
-    snap => setRows(snap.docs.map(d => fromStored(d.data(), d.id) as Row).sort((a, b) => (a.order ?? 99) - (b.order ?? 99))),
-    e => setError(e.message)), []);
+  const [actionError, setError] = useState('');
+  const error = loadError || actionError;
 
   if (editing) {
     const nextOrder = rows?.length ? Math.max(...rows.map(r => r.order ?? 0)) + 1 : 1;
-    return <ProjectEditor initial={editing === 'new' ? null : editing} nextOrder={nextOrder} existing={rows?.map(r => r.slug) ?? []} onClose={() => setEditing(null)} />;
+    return <ProjectEditor initial={editing} nextOrder={nextOrder} existing={rows?.map(r => r.slug) ?? []} onClose={() => setEditing(null)} />;
   }
 
   const importCurrent = async () => {
@@ -55,7 +53,7 @@ export default function Projects() {
     <section>
       <div className="adm-head">
         <div><h1>Projets</h1><p className="adm-muted">Les projets publiés apparaissent sur le site (accueil, études de cas, à propos) dès l&apos;enregistrement.</p></div>
-        <button className="btn-lime" onClick={() => setEditing('new')}><Plus size={16} />Nouveau projet</button>
+        <button className="btn-lime adm-cta" onClick={onNew}><Plus size={16} />Ajouter un projet</button>
       </div>
       {error ? <p className="adm-err">{error}</p> : null}
       {!rows ? <p className="adm-muted">Chargement…</p> : !rows.length ? (
@@ -64,27 +62,36 @@ export default function Projects() {
           <button className="ghost" onClick={importCurrent} disabled={busy}>{busy ? 'Import…' : 'Importer les 5 projets actuels'}</button>
         </div>
       ) : (
-        <ul className="adm-list">
+        <ul className="adm-cards">
           {rows.map((r, i) => (
-            <li key={r.slug} className={`adm-proj panel${r.published ? '' : ' off'}`}>
-              <div className="adm-order">
-                <button aria-label="Monter" onClick={() => move(i, -1)} disabled={!i}><ArrowUp size={14} /></button>
-                <button aria-label="Descendre" onClick={() => move(i, 1)} disabled={i === rows.length - 1}><ArrowDown size={14} /></button>
-              </div>
-              <div className="adm-proj-main">
+            <li key={r.slug} className={`adm-pcard panel${r.published ? '' : ' off'}`}>
+              <button className="adm-pcover" onClick={() => setEditing(r)} aria-label={`Modifier ${r.title}`}>
+                {r.gallery?.length
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={galleryImage(r)} alt="" loading="lazy" />
+                  : <span className="adm-pcover-empty">Pas encore de photo</span>}
+                <span className={`adm-pub${r.published ? ' on' : ''}`}>{r.published ? 'Publié' : 'Brouillon'}</span>
+              </button>
+              <div className="adm-pbody">
                 <span className="mono">{`${r.id || '—'} · ${r.category || 'Sans catégorie'} · ${r.year || ''}`}</span>
                 <b>{r.title}</b>
-                <span className="adm-muted">{r.tagline}</span>
+                <p>{r.tagline}</p>
               </div>
-              <span className={`adm-pub${r.published ? ' on' : ''}`}>{r.published ? 'Publié' : 'Brouillon'}</span>
-              <div className="adm-rdv-act">
-                <button className="ghost" onClick={() => togglePublish(r)}>{r.published ? <><EyeOff size={14} />Masquer</> : <><Eye size={14} />Publier</>}</button>
-                {r.published ? <a className="ghost" href={projectHref(r.slug)} target="_blank" rel="noopener">Voir</a> : null}
-                <button className="ghost" onClick={() => setEditing(r)}><Pencil size={14} />Modifier</button>
-                <button className="ghost adm-danger" onClick={() => remove(r)} aria-label="Supprimer"><Trash2 size={14} /></button>
+              <div className="adm-pact">
+                <div className="adm-order">
+                  <button aria-label="Monter" title="Monter" onClick={() => move(i, -1)} disabled={!i}><ArrowUp size={14} /></button>
+                  <button aria-label="Descendre" title="Descendre" onClick={() => move(i, 1)} disabled={i === rows.length - 1}><ArrowDown size={14} /></button>
+                </div>
+                <div className="adm-pact-r">
+                  <button className="adm-icon" onClick={() => togglePublish(r)} title={r.published ? 'Masquer du site' : 'Publier'} aria-label={r.published ? 'Masquer du site' : 'Publier'}>{r.published ? <EyeOff size={15} /> : <Eye size={15} />}</button>
+                  {r.published ? <a className="adm-icon" href={projectHref(r.slug)} target="_blank" rel="noopener" title="Voir sur le site" aria-label="Voir sur le site"><ExternalLink size={15} /></a> : null}
+                  <button className="adm-icon adm-danger" onClick={() => remove(r)} title="Supprimer" aria-label="Supprimer"><Trash2 size={15} /></button>
+                  <button className="ghost" onClick={() => setEditing(r)}><Pencil size={14} />Modifier</button>
+                </div>
               </div>
             </li>
           ))}
+          <li><button className="adm-padd" onClick={onNew}><Plus size={22} strokeWidth={1.5} /><b>Ajouter un projet</b><span>Textes, photos, charte graphique</span></button></li>
         </ul>
       )}
     </section>

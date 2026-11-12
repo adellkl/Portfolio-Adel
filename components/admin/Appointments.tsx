@@ -1,16 +1,17 @@
 'use client';
 /* Rendez-vous : liste en temps réel, filtres, confirmation / annulation (libère le créneau), suppression. */
-import { useEffect, useMemo, useState } from 'react';
-import { collection, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from 'firebase/firestore';
+import { useMemo, useState } from 'react';
+import { deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Check, Mail, Trash2, X } from 'lucide-react';
 import { db, type Appointment } from '@/lib/firebase-client';
 import { BOOKING } from '@/lib/site';
 
-type Row = Appointment & { id: string };
+export type AppointmentRow = Appointment & { id: string };
+type Row = AppointmentRow;
 type Filter = 'avenir' | 'nouveaux' | 'passes' | 'tous';
 
-const longDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+export const longDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+export const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
 function mailto(r: Row, kind: 'confirm' | 'cancel' | 'reply') {
   const when = `${longDate(r.date)} à ${r.time}`;
@@ -23,18 +24,9 @@ function mailto(r: Row, kind: 'confirm' | 'cancel' | 'reply') {
   return `mailto:${r.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-export default function Appointments({ onNewCount }: { onNewCount: (n: number) => void }) {
-  const [rows, setRows] = useState<Row[] | null>(null);
-  const [error, setError] = useState('');
+export default function Appointments({ rows, error }: { rows: Row[] | null; error: string }) {
   const [filter, setFilter] = useState<Filter>('avenir');
-
-  useEffect(() => onSnapshot(collection(db(), 'appointments'),
-    snap => setRows(snap.docs.map(d => ({ ...(d.data() as Appointment), id: d.id })).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))),
-    e => setError(e.message)), []);
-
   const t = today();
-  const newOnes = rows?.filter(r => r.status === 'nouveau' && r.date >= t).length ?? 0;
-  useEffect(() => { onNewCount(newOnes); }, [newOnes, onNewCount]);
 
   const shown = useMemo(() => {
     if (!rows) return [];

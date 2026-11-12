@@ -99,7 +99,7 @@ export default function ProjectEditor({ initial, nextOrder, existing, onClose }:
         <Field label="Adresse de la page" hint={`/projets/${p.slug || '…'}`}><input value={p.slug} disabled={!isNew} onChange={e => { setSlugTouched(true); set('slug', slugify(e.target.value)); }} /></Field>
         <Field label="Accroche" wide><input value={p.tagline} onChange={e => set('tagline', e.target.value)} placeholder="Le site d'un club de grappling à Saint-Ouen" /></Field>
         <Field label="Référence"><input value={p.id} onChange={e => set('id', e.target.value)} /></Field>
-        <Field label="Catégorie" hint="Contient « réservation » → filtre Réservation"><input value={p.category} onChange={e => set('category', e.target.value)} /></Field>
+        <Field label="Catégorie"><input value={p.category} onChange={e => set('category', e.target.value)} /></Field>
         <Field label="Année"><input value={p.year} onChange={e => set('year', e.target.value)} /></Field>
         <Field label="Période"><input value={p.period} onChange={e => set('period', e.target.value)} placeholder="Oct. → nov. 2026" /></Field>
         <Field label="Statut"><select value={p.status} onChange={e => set('status', e.target.value)}>{STATUSES.map(s => <option key={s}>{s}</option>)}</select></Field>
