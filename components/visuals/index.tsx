@@ -2,7 +2,7 @@
    Permis, Reservations et Catalogue reprennent exactement la structure (et le CSS) de livret / prospect.
    Non interactifs : les <button> restent inertes. */
 import type { CSSProperties, JSX } from 'react';
-import { COLORS, type ColorKey, type VisualKey } from '@/lib/projects';
+import { COLORS, type ColorKey, type Project, type VisualKey } from '@/lib/projects';
 
 const v = (o: Record<string, string | number>) => o as CSSProperties;
 
@@ -72,6 +72,18 @@ export function Catalogue() {
   );
 }
 
-export const VISUALS: Record<VisualKey, () => JSX.Element> = {
+export const VISUALS: Record<Exclude<VisualKey, 'image'>, () => JSX.Element> = {
   planning: Planning, calendar: Calendar, reservations: Reservations, catalogue: Catalogue, permis: Permis,
 };
+
+/** Image de couverture d'un projet (1re photo de la galerie) */
+export const galleryImage = (p: Project, i = 0) => p.gallery?.[i]?.[2] || `/projets/${p.slug}/${i + 1}.jpg`;
+
+/** Visuel d'un projet : maquette animée si elle existe, sinon la 1re photo de la galerie */
+export function ProjectVisual({ p }: { p: Project }) {
+  const V = p.visual !== 'image' ? VISUALS[p.visual] : undefined;
+  if (V) return <V />;
+  if (!p.gallery?.length) return null;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <div className="viz-image" data-viz="image"><img src={galleryImage(p)} alt={`${p.title} — ${p.gallery[0][0]}`} loading="lazy" /></div>;
+}

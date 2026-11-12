@@ -6,8 +6,8 @@ import Steps from '@/components/services/Steps';
 import Quiz from '@/components/services/Quiz';
 import CtaBlock from '@/components/CtaBlock';
 import { FaqSection } from '@/components/ui/faq-section';
-import { PROJECTS } from '@/lib/projects';
-import { COMMITS, ONLINE, TESTS, projectHref } from '@/lib/site';
+import { getProjects } from '@/lib/data';
+import { COMMITS, TESTS, onlineCount, projectHref } from '@/lib/site';
 
 export const metadata: Metadata = pageMeta('Services — Adel Loukal', 'Sites vitrines, applications web sur mesure, réservation et paiement, espaces clients, e-commerce et refontes : ce que je peux construire pour vous, et comment.', '/services');
 
@@ -34,9 +34,11 @@ const services: [string, string, string[], [string, string][]][] = [
     [['alpha-fight-club', 'Alpha Fight Club'], ['la-marine', 'La Marine']]],
 ];
 
-const counters: [number, string, string][] = [[PROJECTS.length, '', 'projets réalisés'], [COMMITS, '', 'commits en un an'], [TESTS, '', 'fichiers de tests automatisés'], [ONLINE, '', 'sites en ligne']];
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const projects = await getProjects();
+  const counters: [number, string, string][] = [[projects.length, '', 'projets réalisés'], [COMMITS, '', 'commits en un an'], [TESTS, '', 'fichiers de tests automatisés'], [onlineCount(projects), '', 'sites en ligne']];
+  const refs = projects.map(p => ({ slug: p.slug, title: p.title, tagline: p.tagline }));
   return (
     <>
       <header className="page-hero" id="top">
@@ -82,7 +84,7 @@ export default function ServicesPage() {
         <div className="wrap">
           <div className="eyebrow reveal"><span className="mono">02</span>Le bon service</div>
           <h2 className="reveal" style={d('.08s')}>Trois questions <span className="muted">pour savoir par où commencer.</span></h2>
-          <Quiz />
+          <Quiz projects={refs} />
         </div>
       </section>
 

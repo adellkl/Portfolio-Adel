@@ -4,6 +4,9 @@ import { EMAIL } from './site';
 export const reduceMotion = () => typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const finePointer = () => typeof window !== 'undefined' && matchMedia('(pointer: fine)').matches;
 
+/** Échappe un texte avant de l'injecter en HTML (titres venant de Firestore) */
+export const esc = (t: string) => t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
 export const $ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector<T>(s) as T | null;
 export const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => [...r.querySelectorAll<T>(s)];
 
@@ -68,7 +71,7 @@ export function leaveTo(href: string, delay: number) {
 export function navTo(href: string) {
   const url = new URL(href, location.href);
   const same = url.pathname.replace(/\/$/, '/index.html') === location.pathname.replace(/\/$/, '/index.html') && url.search === location.search;
-  if (same && url.hash) { $(url.hash)?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth' }); return; }
+  if (same && url.hash) { if (url.hash === '#contact') dispatchEvent(new Event('contact:open')); $(url.hash)?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth' }); return; }
   leaveTo(url.href, reduceMotion() ? 0 : 250);
 }
 

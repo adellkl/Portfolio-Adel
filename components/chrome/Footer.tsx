@@ -1,13 +1,16 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { LEGAL } from '@/lib/site';
 
 const BUILD_YEAR = 2026;
 
 export default function Footer() {
   const year = useRef<HTMLSpanElement>(null);
+  const admin = usePathname().startsWith('/admin');
   // Année courante côté client (évite un écart d'hydratation)
   useEffect(() => { if (year.current) year.current.textContent = `© ${new Date().getFullYear()} Adel Loukal · Fait main, sans template`; }, []);
+  if (admin) return null;
   return (
     <footer>
       <div className="wrap">

@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// Portfolio Adel Loukal — règles Firestore
+// - projects     : lecture publique des projets publiés ; écriture réservée à l'admin
+// - appointments : création publique contrôlée (champs, tailles, statut « nouveau ») ; lecture et gestion par l'admin
+// - slots        : verrou public d'un créneau, sans donnée personnelle (id = « AAAA-MM-JJ_HHhMM »)
+// - admins       : liste des comptes administrateurs (gérée depuis la console Firebase)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function str(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /projects/{slug} {
+      allow read: if (resource.data.published == true) || isAdmin();
+      allow write: if isAdmin() && slug.matches('^[a-z0-9]+(-[a-z0-9]+)*$');
+    }
+
+    match /appointments/{id} {
+      allow create: if
+        request.resource.data.keys().hasOnly(['name', 'email', 'message', 'date', 'time', 'status', 'createdAt', 'brief'])
+        && str(request.resource.data.name, 1, 80)
+        && str(request.resource.data.email, 5, 120) && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && str(request.resource.data.message, 0, 2000)
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.time.matches('^[0-9]{2}:[0-9]{2}$')
+        && id == request.resource.data.date + '_' + request.resource.data.time.replace(':', 'h')
+        && request.resource.data.status == 'nouveau'
+        && request.resource.data.createdAt == request.time
+        && (!('brief' in request.resource.data) || str(request.resource.data.brief, 0, 120))
+        // le verrou du créneau doit être créé dans la même écriture
+        && existsAfter(/databases/$(database)/documents/slots/$(id));
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /slots/{id} {
+      allow read: if true;
+      allow create: if
+        request.resource.data.keys().hasOnly(['date', 'time'])
+        && id == request.resource.data.date + '_' + request.resource.data.time.replace(':', 'h')
+        // un verrou ne peut exister qu'avec sa demande de rendez-vous
+        && existsAfter(/databases/$(database)/documents/appointments/$(id));
+      allow update, delete: if isAdmin();
+    }
+  }
+}

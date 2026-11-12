@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import type { Project } from '@/lib/projects';
+import { galleryImage } from '@/components/visuals';
 
 /* Galerie bento : 5 captures du site en ligne (3 ordinateur, 2 mobile).
    Disposition : grande vue + mobile / mobile + vue / bandeau large. */
@@ -15,7 +16,7 @@ export default function ProjectGallery({ p, n }: { p: Project; n: string }) {
       <div className="bento">
         {p.gallery.map(([label, kind], i) => (
           <figure className={`bento-item ${AREAS[i]} reveal${kind === 'm' ? ' is-mobile' : ''}`} style={{ '--d': `${i * .06}s` } as CSSProperties} key={i}>
-            <Image src={`/projets/${p.slug}/${i + 1}.jpg`} alt={`${p.title} — ${label}`} fill
+            <Image src={galleryImage(p, i)} alt={`${p.title} — ${label}`} fill unoptimized={galleryImage(p, i).startsWith('http://127.0.0.1')}
               sizes={kind === 'm' ? '(max-width: 640px) 50vw, 260px' : '(max-width: 640px) 100vw, 760px'} />
             <figcaption className="mono">{label}</figcaption>
           </figure>

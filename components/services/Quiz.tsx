@@ -2,7 +2,7 @@
 /* Quiz « quel service pour vous ? » (interactions.js §4b).
    À la fin, les réponses sont sauvegardées (lib/brief.ts) et mènent à la réservation d'un appel ou à un e-mail prérempli. */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { lc, PROJECTS } from '@/lib/projects';
+import { lc } from '@/lib/projects';
 import { EMAIL, TYPES, projectHref } from '@/lib/site';
 import { briefText, clearBrief, saveBrief, type Brief } from '@/lib/brief';
 
@@ -33,7 +33,7 @@ const toBrief = (hist: string): Brief => {
   return { type: best, recommendation: R[best][0], answers: [...hist].map((i, k) => [Q[k][0], Q[k][1][+i][0]]), at: new Date().toISOString() };
 };
 
-export default function Quiz() {
+export default function Quiz({ projects }: { projects: { slug: string; title: string; tagline: string }[] }) {
   const [hist, setHist] = useState('');
   const [chosen, setChosen] = useState<number | null>(null);
   const [n, setN] = useState(0); // remonte .q-body à chaque rendu (animation qIn)
@@ -63,11 +63,11 @@ export default function Quiz() {
       {step ? <button className="q-back" onClick={back}>← Question précédente</button> : null}</div>;
   } else {
     const brief = toBrief(hist), best = brief.type;
-    const [t, d, slug] = R[best], p = PROJECTS.find(x => x.slug === slug)!;
+    const [t, d, slug] = R[best], p = projects.find(x => x.slug === slug);
     const subject = `Projet — ${TYPES[best][0]}`;
     const mailto = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Bonjour Adel,\n\nJe cherche quelqu'un pour ${TYPES[best][0]}.\n\n${briefText(brief)}\n`)}`;
     body = <div className="q-body q-res" key={n}><span className="mono">RECOMMANDATION</span><h3>{t}</h3><p>{d}</p>
-      <p className="ref">Exemple concret : <a href={projectHref(p.slug)}>{`${p.title} — ${lc(p.tagline)} →`}</a></p>
+      {p ? <p className="ref">Exemple concret : <a href={projectHref(p.slug)}>{`${p.title} — ${lc(p.tagline)} →`}</a></p> : null}
       <div className="q-actions"><a className="btn-lime" href={`/rendez-vous?type=${best}`}>Réserver un appel avec ce brief</a><a className="ghost" href={mailto}>Écrire un e-mail</a><button className="ghost q-again" onClick={again}>Recommencer</button></div>
       <p className="q-saved mono">Vos réponses sont gardées et jointes à votre demande.</p></div>;
   }

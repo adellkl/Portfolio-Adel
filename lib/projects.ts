@@ -5,7 +5,7 @@
    ========================================================= */
 export const COLORS = {teal:'var(--teal)',iris:'var(--iris)',lav:'var(--lav)',green:'var(--green)',coral:'var(--coral)'} as const;
 export type ColorKey = keyof typeof COLORS;
-export type VisualKey = 'planning' | 'calendar' | 'reservations' | 'catalogue' | 'permis';
+export type VisualKey = 'planning' | 'calendar' | 'reservations' | 'catalogue' | 'permis' | 'image';
 /** Polices des chartes (chargées sur les pages projet uniquement, components/Charte.tsx) */
 export type FontKey = 'newsreader' | 'schibsted' | 'plexmono' | 'caveat' | 'cormorant' | 'montserrat' | 'roboto' | 'inter' | 'system';
 export const lc = (s: string) => s[0].toLowerCase() + s.slice(1);
@@ -24,9 +24,9 @@ export type Project = {
   /** [valeur, suffixe, libellé, préfixe facultatif ex. '+'] */
   results: [number, string, string, string?][];
   /** Galerie bento : 5 captures du site en ligne (public/projets/<slug>/1..5.jpg), « m » = mobile */
-  gallery?: [string, 'd' | 'm'][];
+  gallery?: [string, 'd' | 'm', string?][]; // [légende, ordinateur/mobile, URL de l'image (sinon /projets/<slug>/<n>.jpg)]
   /** Charte graphique relevée sur le site en ligne et dans le dépôt */
-  charte?: { intent: string; fonts: [string, FontKey, string][]; colors: [string, string, string][] };
+  charte?: { intent: string; fonts: [string, FontKey | string, string][]; colors: [string, string, string][] };
 };
 
 export const PROJECTS: Project[] = [

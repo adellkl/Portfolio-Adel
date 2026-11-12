@@ -6,6 +6,7 @@ import Footer from '@/components/chrome/Footer';
 import CommandPalette from '@/components/chrome/CommandPalette';
 import MotionRuntime from '@/components/motion/MotionRuntime';
 import { GITHUB, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
+import { getProjects } from '@/lib/data';
 
 // adjustFontFallback: false — sinon next/font intercale une police « Fallback » (Arial ajusté) couvrant
 // tous les glyphes : les caractères absents du sous-ensemble latin (→, ⌘…) ne tomberaient plus sur la
@@ -46,7 +47,9 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export const revalidate = 60;
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr" className={`${inter.variable} ${mono.variable}`} data-scroll-behavior="smooth">
       <head>
@@ -57,7 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Nav />
         <MotionRuntime>{children}</MotionRuntime>
         <Footer />
-        <CommandPalette />
+        <CommandPalette projects={(await getProjects()).map(({ slug, title, tagline, id }) => ({ slug, title, tagline, id }))} />
       </body>
     </html>
   );

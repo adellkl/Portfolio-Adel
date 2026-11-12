@@ -2,10 +2,10 @@
 /* Accordéon chronologie (renderTimeline de main.js) */
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { $$ } from '@/lib/dom';
-import { PROJECTS } from '@/lib/projects';
+import type { Project } from '@/lib/projects';
 import { projectHref } from '@/lib/site';
 
-export default function Timeline() {
+export default function Timeline({ projects }: { projects: Project[] }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const off: (() => void)[] = [];
@@ -20,7 +20,7 @@ export default function Timeline() {
 
   return (
     <div className="xp" id="xp" ref={ref}>
-      {PROJECTS.map((p, i) => (
+      {projects.map((p, i) => (
         <div className="xp-row reveal" style={{ '--d': `${i * .05}s` } as CSSProperties} tabIndex={0} role="button" aria-expanded="false" key={p.slug}>
           <span className="mono">{p.period}</span>
           <h4>{p.title}<small>{`${p.category} · ${p.status}`}</small></h4>

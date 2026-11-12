@@ -2,18 +2,17 @@
 /* Palette de commandes ⌘K (bindCmdk de main.js). La liste est rendue en HTML
    comme dans le prototype (<div class="grp"> dans <ul>). */
 import { useEffect } from 'react';
-import { $, $$, copyEmail, leaveTo, reduceMotion } from '@/lib/dom';
+import { $, $$, copyEmail, esc, leaveTo, reduceMotion } from '@/lib/dom';
 import { CMDK_NAV, projectHref } from '@/lib/site';
-import { PROJECTS } from '@/lib/projects';
 
 type Item = { g: string; n: string; k: string; href?: string; act?: () => void };
 
-export default function CommandPalette() {
+export default function CommandPalette({ projects }: { projects: { slug: string; title: string; tagline: string; id: string }[] }) {
   useEffect(() => {
     const bg = $('#cmdk')!, input = $<HTMLInputElement>('#cmdInput')!, list = $('#cmdList')!;
     const items: Item[] = [
       ...CMDK_NAV.map(([n, href, k]) => ({ g: 'Navigation', n, href, k })),
-      ...PROJECTS.map(p => ({ g: 'Études de cas', n: `${p.title} — ${p.tagline}`, href: projectHref(p.slug), k: p.id })),
+      ...projects.map(p => ({ g: 'Études de cas', n: `${p.title} — ${p.tagline}`, href: projectHref(p.slug), k: p.id })),
       { g: 'Actions', n: 'Copier mon email', act: copyEmail, k: '⌘ C' },
     ];
     let act = 0, shown = items;
@@ -22,7 +21,7 @@ export default function CommandPalette() {
       let g = '';
       list.innerHTML = shown.map((it, i) => {
         const head = it.g !== g ? `<div class="grp">${g = it.g}</div>` : '';
-        return `${head}<li class="${i === act ? 'act' : ''}" data-i="${i}">${it.n}<span class="mono">${it.k}</span></li>`;
+        return `${head}<li class="${i === act ? 'act' : ''}" data-i="${i}">${esc(it.n)}<span class="mono">${esc(it.k)}</span></li>`;
       }).join('');
       $('li.act', list)?.scrollIntoView({ block: 'nearest' });
     };
@@ -33,7 +32,7 @@ export default function CommandPalette() {
       const it = shown[i]; if (!it) return; close();
       if (it.act) return it.act();
       const url = new URL(it.href!, location.href);
-      if (url.pathname === location.pathname && url.search === location.search && url.hash) $(url.hash)?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth' });
+      if (url.pathname === location.pathname && url.search === location.search && url.hash) { if (url.hash === '#contact') dispatchEvent(new Event('contact:open')); $(url.hash)?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth' }); }
       else leaveTo(url.href, 250);
     };
     const btns = $$('[data-cmdk]');
@@ -58,7 +57,7 @@ export default function CommandPalette() {
       input.removeEventListener('input', onInput);
       removeEventListener('keydown', onKey);
     };
-  }, []);
+  }, [projects]);
 
   return (
     <div className="cmdk-bg" id="cmdk" aria-hidden="true"><div className="cmdk" role="dialog" aria-label="Palette de commandes">

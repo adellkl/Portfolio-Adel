@@ -1,12 +1,16 @@
 'use client';
 /* Réserver un créneau : informations · calendrier du mois · créneaux du jour.
-   Sans service externe : la confirmation ouvre la messagerie avec la demande prête (mailto),
-   Adel confirme ensuite par e-mail. Disponibilités : BOOKING dans lib/site.ts. */
+   Avec Firebase : la demande est enregistrée (dashboard /admin) et le créneau est bloqué pour les autres visiteurs,
+   puis la messagerie s'ouvre avec la demande prête. Sans Firebase : seulement la messagerie.
+   Disponibilités : BOOKING dans lib/site.ts. */
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { ChevronLeft, ChevronRight, Clock, Globe, Video } from 'lucide-react';
 import { BOOKING, EMAIL } from '@/lib/site';
 import { briefText, loadBrief, type Brief } from '@/lib/brief';
 import Logo from '@/components/Logo';
+import { firebaseEnabled } from '@/lib/firebase';
+import { db, slotId } from '@/lib/firebase-client';
+import { collection, doc, getDocs, query, serverTimestamp, where, writeBatch } from 'firebase/firestore';
 
 const DOW = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -16,11 +20,11 @@ const toMin = (s: string) => { const [h, m] = s.split(':').map(Number); return h
 const fmtTime = (m: number) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 const longDate = (d: Date) => d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-function slotsFor(d: Date, now: Date) {
+function slotsFor(d: Date, now: Date, taken?: Set<string>) {
   const out: number[] = [];
   for (let m = toMin(BOOKING.from); m + BOOKING.minutes <= toMin(BOOKING.to); m += BOOKING.step) {
     const t = new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(m / 60), m % 60);
-    if (t.getTime() - now.getTime() >= BOOKING.noticeHours * 3600e3) out.push(m);
+    if (t.getTime() - now.getTime() >= BOOKING.noticeHours * 3600e3 && !taken?.has(slotId(key(d), fmtTime(m)))) out.push(m);
   }
   return out;
 }
@@ -32,6 +36,8 @@ export function BookingSection() {
   const [slot, setSlot] = useState<number | null>(null);
   const [sent, setSent] = useState(false);
   const [brief, setBrief] = useState<Brief | null>(null); // réponses du quiz, si la personne l'a fait
+  const [taken, setTaken] = useState<Set<string>>(() => new Set()); // créneaux déjà réservés
+  const [state, setState] = useState<'idle' | 'saving' | 'error' | 'taken'>('idle');
   const panel = useRef<HTMLDivElement>(null);
 
   // Formulaire ouvert : le calendrier se réduit, la colonne du formulaire s'agrandit (transition CSS).
@@ -42,8 +48,19 @@ export function BookingSection() {
     if (!now) return false;
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const limit = new Date(start); limit.setDate(limit.getDate() + BOOKING.horizonDays);
-    return d >= start && d <= limit && BOOKING.days.includes(isoDow(d)) && slotsFor(d, now).length > 0;
-  }, [now]);
+    return d >= start && d <= limit && BOOKING.days.includes(isoDow(d)) && slotsFor(d, now, taken).length > 0;
+  }, [now, taken]);
+
+  /* Créneaux pris du mois affiché (verrous publics, sans donnée personnelle) */
+  useEffect(() => {
+    if (!firebaseEnabled || !month) return;
+    let alive = true;
+    const from = key(month), to = key(new Date(month.getFullYear(), month.getMonth() + 1, 0));
+    getDocs(query(collection(db(), 'slots'), where('date', '>=', from), where('date', '<=', to)))
+      .then(snap => { if (alive) setTaken(prev => new Set([...prev, ...snap.docs.map(d => d.id)])); })
+      .catch(() => { /* lecture impossible : on affiche tous les créneaux, l'enregistrement refusera les doublons */ });
+    return () => { alive = false; };
+  }, [month]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -69,18 +86,38 @@ export function BookingSection() {
   const thisMonth = now ? new Date(now.getFullYear(), now.getMonth(), 1) : null;
   const lastMonth = now ? (() => { const l = new Date(now); l.setDate(l.getDate() + BOOKING.horizonDays); return new Date(l.getFullYear(), l.getMonth(), 1); })() : null;
   const shift = (k: number) => month && setMonth(new Date(month.getFullYear(), month.getMonth() + k, 1));
-  const slots = day && now ? slotsFor(day, now) : [];
+  const slots = day && now ? slotsFor(day, now, taken) : [];
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!day || slot === null) return;
+    if (!day || slot === null || state === 'saving') return;
     const f = new FormData(e.currentTarget);
-    const name = String(f.get('name') || '').trim(), mail = String(f.get('email') || '').trim(), msg = String(f.get('message') || '').trim();
-    const when = `${longDate(day)} à ${fmtTime(slot)}`;
+    const name = String(f.get('name') || '').trim().slice(0, 80), mail = String(f.get('email') || '').trim().slice(0, 120), msg = String(f.get('message') || '').trim().slice(0, 2000);
+    const date = key(day), time = fmtTime(slot), id = slotId(date, time);
+
+    // 1. Enregistrement (rendez-vous + verrou du créneau, en une seule écriture atomique)
+    if (firebaseEnabled) {
+      setState('saving');
+      try {
+        const b = writeBatch(db());
+        b.set(doc(db(), 'appointments', id), { name, email: mail, message: msg, date, time, status: 'nouveau', createdAt: serverTimestamp(), ...(brief ? { brief: brief.recommendation } : {}) });
+        b.set(doc(db(), 'slots', id), { date, time });
+        await b.commit();
+        setTaken(t => new Set(t).add(id));
+      } catch (err) {
+        // Créneau pris entre-temps (le verrou existe déjà) ou règles refusées
+        const code = (err as { code?: string }).code;
+        setState(code === 'permission-denied' ? 'taken' : 'error');
+        if (code === 'permission-denied') setTaken(t => new Set(t).add(id));
+        return;
+      }
+    }
+    // 2. Messagerie, avec la demande prête
+    const when = `${longDate(day)} à ${time}`;
     const subject = `Demande d'appel — ${when} (${name})`;
     const body = `Bonjour Adel,\n\nJe souhaite réserver un ${BOOKING.title.toLowerCase()} de ${BOOKING.minutes} minutes le ${when} (heure de Paris).\n${msg ? `\nMon projet : ${msg}\n` : ''}\n${name}\n${mail}`;
     location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    setState('idle'); setSent(true);
   };
 
   return (
@@ -130,14 +167,16 @@ export function BookingSection() {
               </>
             ) : (
               <form className="book-form" onSubmit={submit} key={`${key(day)}-${slot}`}>
-                <button type="button" className="book-back" onClick={() => setSlot(null)}>← Changer d&apos;heure</button>
+                <button type="button" className="book-back" onClick={() => { setSlot(null); setState('idle'); }}>← Changer d&apos;heure</button>
                 <div className="book-when"><b>{longDate(day)}</b><span>{`${fmtTime(slot)} – ${fmtTime(slot + BOOKING.minutes)} · heure de Paris`}</span></div>
                 <input name="name" placeholder="Votre nom" required aria-label="Votre nom" />
                 <input name="email" type="email" placeholder="votre@email.com" required aria-label="Votre email" />
                 {brief ? <div className="book-brief"><span className="mono">BRIEF DU QUIZ</span>{brief.recommendation}</div> : null}
                 <textarea name="message" rows={brief ? 6 : 3} placeholder="Votre projet en deux mots (facultatif)" aria-label="Votre projet" defaultValue={brief ? briefText(brief) : undefined}></textarea>
-                <button className="btn-lime" type="submit">Demander ce créneau</button>
-                {sent ? <span className="sent mono">✓ Votre messagerie s&apos;ouvre avec la demande prête. Je vous confirme le créneau par e-mail.</span> : null}
+                <button className="btn-lime" type="submit" disabled={state === 'saving'}>{state === 'saving' ? 'Envoi…' : 'Demander ce créneau'}</button>
+                {sent ? <span className="sent mono">{firebaseEnabled ? '✓ Demande enregistrée. Votre messagerie s\'ouvre aussi avec la demande prête ; je vous confirme le créneau par e-mail.' : '✓ Votre messagerie s\'ouvre avec la demande prête. Je vous confirme le créneau par e-mail.'}</span> : null}
+                {state === 'taken' ? <span className="sent mono book-err">Ce créneau vient d&apos;être réservé. Choisissez-en un autre.</span> : null}
+                {state === 'error' ? <span className="sent mono book-err">L&apos;enregistrement a échoué. Réessayez, ou écrivez-moi directement.</span> : null}
               </form>
             )}
           </div>

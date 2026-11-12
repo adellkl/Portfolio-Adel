@@ -2,21 +2,24 @@ import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { pageMeta } from '@/lib/seo';
-import { COLORS, lc, PROJECTS } from '@/lib/projects';
+import { COLORS, lc } from '@/lib/projects';
+import { getProject, getProjects } from '@/lib/data';
 import { SITE_URL, projectHref } from '@/lib/site';
-import { VISUALS } from '@/components/visuals';
+import { ProjectVisual } from '@/components/visuals';
 import SplitTitle from '@/components/SplitTitle';
 import Tags from '@/components/Tags';
 import ProjectRuntime from '@/components/ProjectRuntime';
 import ProjectGallery from '@/components/ProjectGallery';
 import Charte from '@/components/Charte';
 
-export const dynamicParams = false;
-export function generateStaticParams() { return PROJECTS.map(p => ({ slug: p.slug })); }
+// Les projets ajoutés depuis le dashboard sont générés à la demande puis mis en cache (60 s)
+export const dynamicParams = true;
+export const revalidate = 60;
+export async function generateStaticParams() { return (await getProjects()).map(p => ({ slug: p.slug })); }
 
 export async function generateMetadata({ params }: PageProps<'/projets/[slug]'>): Promise<Metadata> {
   const { slug } = await params;
-  const p = PROJECTS.find(x => x.slug === slug);
+  const p = (await getProject(slug))?.p;
   if (!p) return {};
   return pageMeta(`${p.title} — ${p.tagline} · Adel Loukal`, p.summary, projectHref(p.slug), 'article');
 }
@@ -25,12 +28,10 @@ const d = (s: string) => ({ '--d': s }) as CSSProperties;
 
 export default async function ProjectPage({ params }: PageProps<'/projets/[slug]'>) {
   const { slug } = await params;
-  const idx = PROJECTS.findIndex(p => p.slug === slug);
-  if (idx < 0) notFound();
-  const p = PROJECTS[idx];
-  const nxt = PROJECTS[(idx + 1) % PROJECTS.length];
+  const found = await getProject(slug);
+  if (!found) notFound();
+  const { p, next: nxt } = found;
   const statusDot = ({ 'En ligne': 'var(--green)', 'En développement': 'var(--iris)' } as Record<string, string>)[p.status] || 'var(--ash)';
-  const Visual = VISUALS[p.visual], NextVisual = VISUALS[nxt.visual];
 
   return (
     <main id="page">
@@ -57,7 +58,7 @@ export default async function ProjectPage({ params }: PageProps<'/projets/[slug]
           </div>
           <div className="stage" style={{ marginTop: 64 }}>
             <div className="floor"></div>
-            <div className="frame panel p-shot spot"><Visual /></div>
+            <div className="frame panel p-shot spot"><ProjectVisual p={p} /></div>
           </div>
         </div>
       </header>
@@ -110,7 +111,7 @@ export default async function ProjectPage({ params }: PageProps<'/projets/[slug]
             <h3>{nxt.title}</h3>
             <span className="arrow-link">{`${nxt.tagline} `}<span>→</span></span>
           </div>
-          <div className="preview in"><NextVisual /></div>
+          <div className="preview in"><ProjectVisual p={nxt} /></div>
         </a>
       </div>
       <ProjectRuntime />

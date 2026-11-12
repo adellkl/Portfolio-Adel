@@ -17,7 +17,8 @@ export default function Nav() {
   const burger = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const nav = $('#nav')!;
+    const nav = $('#nav');
+    if (!nav) return;
     const on = () => { nav.classList.toggle('scrolled', scrollY > 10); };
     addEventListener('scroll', on, { passive: true }); on();
     return () => removeEventListener('scroll', on);
@@ -36,6 +37,7 @@ export default function Nav() {
   }, [open]);
   const [lastPath, setLastPath] = useState(pathname);
   if (pathname !== lastPath) { setLastPath(pathname); setOpen(false); }
+  const hidden = pathname.startsWith('/admin'); // le dashboard a sa propre barre
 
   // Ferme avant la navigation (le verrou de scroll doit sauter avant le défilement vers une ancre)
   const close = () => { document.documentElement.classList.remove('menu-open'); setOpen(false); };
@@ -45,6 +47,7 @@ export default function Nav() {
     ['Rendez-vous', '/rendez-vous', cur('rendez-vous')], ['Contact', `${home}#contact`, undefined],
   ];
 
+  if (hidden) return null;
   return (
     <>
       <nav id="nav" className={open ? 'nav-open' : undefined}><div className="wrap">

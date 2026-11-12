@@ -97,10 +97,12 @@ export default function MotionRuntime({ children }: { children: ReactNode }) {
     lastPath.current = location.pathname;
     body.classList.remove('leaving');
     let r1 = 0, r2 = 0;
-    if (!body.classList.contains('ready')) r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => body.classList.add('ready')); });
+    // html.booted : après le 1er affichage, seul le contenu fait le fondu entre les pages (la nav reste visible)
+    if (!body.classList.contains('ready')) r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => { body.classList.add('ready'); document.documentElement.classList.add('booted'); }); });
 
     const obs = createRevealObserver();
-    observeReveals();
+    // Les sections attendent la fin de l'animation de l'en-tête (titre mot par mot) avant d'apparaître
+    const revealT = setTimeout(() => observeReveals(), reduceMotion() ? 0 : 1100);
 
     const off: (() => void)[] = [];
     if (finePointer() && !reduceMotion()) {
@@ -115,7 +117,7 @@ export default function MotionRuntime({ children }: { children: ReactNode }) {
         off.push(() => { s.removeEventListener('pointermove', move); s.removeEventListener('pointerleave', leave); });
       });
       // Boutons « magnétiques »
-      $$('.btn-lime, .pill-white, .teaser .go').forEach(b => {
+      $$('.btn-lime, .teaser .go').forEach(b => {
         const host = b.classList.contains('go') ? b.closest<HTMLElement>('.teaser')! : b;
         const move = (e: PointerEvent) => {
           const r = b.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
@@ -129,6 +131,7 @@ export default function MotionRuntime({ children }: { children: ReactNode }) {
 
     return () => {
       cancelAnimationFrame(r1); cancelAnimationFrame(r2);
+      clearTimeout(revealT);
       releaseRevealObserver(obs);
       off.forEach(f => f());
     };

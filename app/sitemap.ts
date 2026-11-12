@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { PROJECTS } from '@/lib/projects';
+import { getProjects } from '@/lib/data';
 import { SITE_URL, projectHref } from '@/lib/site';
 
 /* /sitemap.xml — pages principales + une étude de cas par projet (date du build) */
-export default function sitemap(): MetadataRoute.Sitemap {
+export const revalidate = 60;
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const projects = await getProjects();
   const lastModified = new Date();
   const page = (path: string, priority: number, changeFrequency: 'weekly' | 'monthly' | 'yearly') =>
     ({ url: `${SITE_URL}${path}`, lastModified, changeFrequency, priority });
@@ -14,6 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page('/rendez-vous', .7, 'monthly'),
     page('/mentions-legales', .2, 'yearly'),
     page('/confidentialite', .2, 'yearly'),
-    ...PROJECTS.map(p => page(projectHref(p.slug), .7, 'yearly')),
+    ...projects.map(p => page(projectHref(p.slug), .7, 'yearly')),
   ];
 }

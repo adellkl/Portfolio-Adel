@@ -46,3 +46,10 @@ next-env.d.ts
 CLAUDE.md
 AGENTS.md
 NOTES.md
+
+# Firebase
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase/
+!.env.example

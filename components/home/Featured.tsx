@@ -1,15 +1,14 @@
 /* Projets mis en avant (5 premiers) */
 import type { CSSProperties } from 'react';
-import { lc, PROJECTS } from '@/lib/projects';
+import { lc, type Project } from '@/lib/projects';
 import { projectHref } from '@/lib/site';
-import { VISUALS } from '@/components/visuals';
+import { ProjectVisual } from '@/components/visuals';
 import Tags from '@/components/Tags';
 
-export default function Featured() {
+export default function Featured({ projects }: { projects: Project[] }) {
   return (
     <div className="projects" id="featured">
-      {PROJECTS.slice(0, 5).map(p => {
-        const V = VISUALS[p.visual];
+      {projects.map(p => {
         return (
           <article className="proj" key={p.slug}>
             <div className="proj-text reveal">
@@ -21,7 +20,7 @@ export default function Featured() {
               <a href={projectHref(p.slug)} className="arrow-link">Lire l&apos;étude de cas <span>→</span></a>
             </div>
             <a href={projectHref(p.slug)} className="panel shot spot reveal" style={{ '--d': '.1s' } as CSSProperties} aria-label={`Voir le projet ${p.title}`}>
-              <V />
+              <ProjectVisual p={p} />
               <span className="pill open">{`Ouvrir ${p.title} →`}</span>
             </a>
           </article>

@@ -43,7 +43,7 @@ export default function Charte({ p, n }: { p: Project; n: string }) {
         <span className="ch-label mono">TYPOGRAPHIE</span>
         <div className="ch-fonts">
           {c.fonts.map(([role, key, note]) => {
-            const f = FAMILY[key];
+            const f = FAMILY[key as FontKey] ?? { name: key, style: { fontFamily: `"${key}", var(--sans)` } };
             return (
               <div className="ch-font" key={role}>
                 <span className="ch-aa" style={f.style}>Aa</span>

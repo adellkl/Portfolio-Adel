@@ -25,6 +25,21 @@ export function LetsWorkTogether() {
     return () => { cancelAnimationFrame(id); clearTimeout(timer.current); };
   }, []);
 
+  /* Arrivée par un lien « contact » (nav, footer, ⌘K, g c…) : directement l'état « Parlons-en » */
+  useEffect(() => {
+    const show = () => { clearTimeout(timer.current); setClicked(true); setDone(true); };
+    const fromHash = () => { if (location.hash === '#contact') show(); };
+    const id = requestAnimationFrame(fromHash);
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+      if (a && new URL(a.href).hash === '#contact' && new URL(a.href).pathname === location.pathname) show();
+    };
+    addEventListener('hashchange', fromHash);
+    addEventListener('contact:open', show);
+    document.addEventListener('click', onClick);
+    return () => { cancelAnimationFrame(id); removeEventListener('hashchange', fromHash); removeEventListener('contact:open', show); document.removeEventListener('click', onClick); };
+  }, []);
+
   const open = () => {
     setClicked(true);
     timer.current = setTimeout(() => setDone(true), reduceMotion() ? 0 : 500);

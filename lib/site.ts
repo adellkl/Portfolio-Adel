@@ -1,4 +1,4 @@
-import { PROJECTS } from './projects';
+import type { Project } from './projects';
 
 export const EMAIL = 'bonjour@adelloukal.fr'; // ← remplace par ton email
 
@@ -25,7 +25,7 @@ export const LEGAL = {
 // (Test Psychotechnique Permis : pas de dépôt local). Tests : 16 fichiers (Lebsa Danah).
 export const COMMITS = 26 + 91 + 187 + 32, TESTS = 16;
 
-export const ONLINE = PROJECTS.filter(p => p.status === 'En ligne').length;
+export const onlineCount = (projects: Project[]) => projects.filter(p => p.status === 'En ligne').length;
 
 /** Items « Navigation » de la palette ⌘K : [nom, href, raccourci] */
 export const CMDK_NAV: [string, string, string][] = [

@@ -1,9 +1,8 @@
 'use client';
 /* Outils : survol/focus d'une pill → projets qui l'utilisent (interactions.js §4c) */
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { $, $$ } from '@/lib/dom';
+import { $, $$, esc } from '@/lib/dom';
 import { USES, projectHref } from '@/lib/site';
-import { PROJECTS } from '@/lib/projects';
 
 const groups: [string, string, string[]][] = [
   ['Front-end', 'Les interfaces que voient vos clients', ['React', 'Next.js', 'TypeScript', 'Tailwind CSS']],
@@ -12,21 +11,21 @@ const groups: [string, string, string[]][] = [
   ['Fonctionnalités', 'Ce que je construis le plus souvent', ['Réservation', 'Paiement en ligne', 'Authentification', 'Administration', 'Formulaires', 'Automatisations']],
 ];
 
-export default function Stack() {
+export default function Stack({ projects }: { projects: { slug: string; title: string }[] }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const stack = ref.current!;
     const show = (c: HTMLElement) => {
-      const panel = c.closest('.panel')!, uses = $('.uses', panel)!, list = (USES[c.textContent!] || []).map(s => PROJECTS.find(p => p.slug === s)!);
+      const panel = c.closest('.panel')!, uses = $('.uses', panel)!, list = (USES[c.textContent!] || []).map(s => projects.find(p => p.slug === s)).filter(p => !!p);
       $$('.pill', panel).forEach(x => x.classList.toggle('on', x === c));
-      uses.innerHTML = list.length ? `<span class="mono">${c.textContent!.toUpperCase()} →</span> ${list.map(p => `<a href="${projectHref(p.slug)}">${p.title}</a>`).join('')}` : '';
+      uses.innerHTML = list.length ? `<span class="mono">${c.textContent!.toUpperCase()} →</span> ${list.map(p => `<a href="${projectHref(p.slug)}">${esc(p.title)}</a>`).join('')}` : '';
       uses.classList.remove('flash'); void uses.offsetWidth; uses.classList.add('flash');
     };
     const on = (e: Event) => { const c = (e.target as Element).closest<HTMLElement>('.pill'); if (c) show(c); };
     stack.addEventListener('pointerover', on);
     stack.addEventListener('focusin', on);
     return () => { stack.removeEventListener('pointerover', on); stack.removeEventListener('focusin', on); };
-  }, []);
+  }, [projects]);
 
   return (
     <div className="stack" id="stack" ref={ref}>

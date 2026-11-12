@@ -6,15 +6,17 @@ import SplitTitle from '@/components/SplitTitle';
 import Stack from '@/components/about/Stack';
 import Timeline from '@/components/about/Timeline';
 import CtaBlock from '@/components/CtaBlock';
-import { PROJECTS } from '@/lib/projects';
-import { ONLINE } from '@/lib/site';
+import { getProjects } from '@/lib/data';
+import { onlineCount } from '@/lib/site';
 
 export const metadata: Metadata = pageMeta('À propos — Adel Loukal', 'Qui je suis, ma façon de travailler, mes outils et la chronologie de mes projets.', '/apropos');
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
 const ico = { width: 18, height: 18, viewBox: '0 0 18 18', fill: 'none', stroke: '#d0d6e0', strokeWidth: 1.3 } as const;
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const projects = await getProjects();
+  const links = projects.map(p => ({ slug: p.slug, title: p.title }));
   return (
     <>
       <header className="page-hero" id="top">
@@ -34,14 +36,15 @@ export default function AboutPage() {
               <div className="panel id-card reveal spot">
                 <div className="id-top"><Image src="/images/adel-loukal.webp" alt="Portrait d'Adel Loukal" fill sizes="(max-width: 960px) 100vw, 440px" priority /></div>
                 <div className="facts">
+                  <div><span>ENTREPRISE</span><span>A.L FRONT · EI</span></div>
                   <div><span>BASE</span><span>Île-de-France · à distance</span></div>
-                  <div><span>PROJETS</span><span id="nbProjects">{`${PROJECTS.length} projets, dont ${ONLINE} en ligne`}</span></div>
+                  <div><span>PROJETS</span><span id="nbProjects">{`${projects.length} projets, dont ${onlineCount(projects)} en ligne`}</span></div>
                   <div><span>STACK</span><span>Next.js · React · TypeScript</span></div>
-                  <div><span>BACKEND</span><span>Supabase · Firebase · PostgreSQL</span></div>
+                  <div><span>BACKEND</span><span>Supabase · PostgreSQL · Express</span></div>
                   <div><span>STATUT</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span className="dot"></span>Disponible</span></div>
                 </div>
               </div>
-              <div className="panel now reveal" style={d('.1s')}><span className="mono">EN CE MOMENT</span><p>Je viens de mettre en ligne la nouvelle version du site d&apos;Alpha Fight Club, sur Next.js 16.</p></div>
+              <div className="panel now reveal" style={d('.1s')}><span className="mono">EN CE MOMENT</span><p>En recherche de nouveaux projets.</p></div>
               <div className="bio-actions reveal" style={d('.15s')}>
                 <a className="ghost" href="https://github.com/adellkl" target="_blank" rel="noopener">GitHub ↗</a>
                 <button className="ghost copy" data-copy="">Copier mon email</button>
@@ -87,7 +90,7 @@ export default function AboutPage() {
         <div className="wrap">
           <div className="eyebrow reveal"><span className="mono">02</span>Outils</div>
           <h2 className="reveal" style={d('.08s')}>Ce que j&apos;utilise au quotidien.</h2>
-          <Stack />
+          <Stack projects={links} />
         </div>
       </section>
 
@@ -96,7 +99,7 @@ export default function AboutPage() {
         <div className="wrap">
           <div className="eyebrow reveal"><span className="mono">03</span>Chronologie</div>
           <h2 className="reveal" style={d('.08s')}>Un an de projets livrés.</h2>
-          <Timeline />
+          <Timeline projects={projects} />
         </div>
       </section>
 
