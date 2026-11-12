@@ -4,8 +4,7 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { $, $$, copyEmail, createRevealObserver, finePointer, leaveTo, navTo, observeReveals, reduceMotion, releaseRevealObserver, setNavigator, toast } from '@/lib/dom';
-import { KEYS, projectHref } from '@/lib/site';
-import { PROJECTS } from '@/lib/projects';
+import { KEYS } from '@/lib/site';
 
 export default function MotionRuntime({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -78,7 +77,8 @@ export default function MotionRuntime({ children }: { children: ReactNode }) {
     };
     addEventListener('keydown', onKey);
 
-    ['/', '/apropos', '/services', '/rendez-vous', ...PROJECTS.map(p => projectHref(p.slug))].forEach(h => router.prefetch(h));
+    // Préchargement des pages principales (les études de cas chargent leurs propres polices : pas de préchargement)
+    ['/', '/apropos', '/services', '/rendez-vous'].forEach(h => router.prefetch(h));
 
     return () => {
       setNavigator(null);

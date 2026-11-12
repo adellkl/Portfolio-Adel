@@ -851,3 +851,52 @@ footer .wrap.foot-legal::before{content:"";position:absolute;top:0;left:24px;rig
   .ch-font{grid-template-columns:64px 1fr;gap:14px}
   .ch-aa{font-size:40px}
 }
+
+/* ---------- NAV : MENU BURGER (mobile) ---------- */
+.burger{display:none;position:relative;width:40px;height:40px;margin-left:6px;border:0;border-radius:9999px;background:none;box-shadow:var(--inset);cursor:pointer;flex:none}
+.burger i{position:absolute;left:12px;right:12px;height:1.5px;border-radius:1px;background:var(--paper);transition:transform .45s var(--ease),top .45s var(--ease)}
+.burger i:first-child{top:16px}
+.burger i:last-child{top:22.5px}
+.burger.on i:first-child{top:19.25px;transform:rotate(45deg)}
+.burger.on i:last-child{top:19.25px;transform:rotate(-45deg)}
+nav.nav-open{background:var(--void);box-shadow:0 .5px 0 var(--graphite)}
+html.menu-open,html.menu-open body{overflow:hidden}
+.mnav{position:fixed;inset:64px 0 0 0;z-index:49;display:flex;flex-direction:column;justify-content:space-between;padding:24px 16px calc(32px + env(safe-area-inset-bottom));background:var(--void);overflow-y:auto;
+  opacity:0;visibility:hidden;transition:opacity .35s var(--ease),visibility 0s linear .35s}
+.mnav.open{opacity:1;visibility:visible;transition:opacity .35s var(--ease),visibility 0s}
+.mnav ul{list-style:none;border-top:.5px solid var(--graphite)}
+.mnav li{border-bottom:.5px solid var(--graphite);opacity:0;transform:translateY(14px);transition:opacity .4s var(--ease),transform .6s var(--ease)}
+.mnav.open li,.mnav.open .mnav-foot{opacity:1;transform:none;transition-delay:calc(70ms + var(--i)*45ms)}
+.mnav li a{display:flex;align-items:baseline;gap:16px;padding:18px 0;font-size:32px;font-weight:510;letter-spacing:-.022em;line-height:1.1;color:var(--paper)}
+.mnav li a .mono{font-size:12px;font-weight:400;letter-spacing:-.013em;color:var(--ash)}
+.mnav li a.cur{color:var(--fog)}
+.mnav-foot{display:flex;flex-direction:column;gap:8px;margin-top:32px;opacity:0;transform:translateY(14px);transition:opacity .4s var(--ease),transform .6s var(--ease)}
+.mnav-foot .btn-lime{justify-content:center;padding:14px 16px;font-size:15px}
+.mnav-foot .ghost{justify-content:center;padding:12px}
+@media (max-width:640px){
+  .burger{display:block}
+  .links .pill-white{padding:8px 14px}
+}
+@media (min-width:641px){.mnav{display:none}}
+
+/* ---------- TACTILE : zones cliquables d'au moins ~40 px, sans changer l'apparence ---------- */
+@media (pointer:coarse){
+  .logo{padding:10px 0;margin:-10px 0}
+  .arrow-link,.back,.lwt-mail,.lwt-sub,.book-back,.q-back{padding-top:10px;padding-bottom:10px;margin-top:-10px;margin-bottom:-10px}
+  .svc-row .ref a,.q-res .ref a,.legal-row a,.uses a,.brief-ref a{padding:12px 0;margin:-12px 0}
+}
+@media (max-width:640px){
+  .bd{aspect-ratio:auto;height:38px}
+  .book-nav button{width:38px;height:38px}
+}
+
+/* ---------- RESPONSIVE : corrections ---------- */
+@media (pointer:coarse){
+  .hint{display:none}
+  footer .mono:has(kbd){display:none}
+}
+@media (max-width:640px){
+  .lwt-status{font-size:11px;letter-spacing:.12em;gap:10px;white-space:nowrap}
+  .viz-table .thead,.viz-table .tr{grid-template-columns:64px minmax(0,1fr) auto}
+  .viz-table .tr>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
