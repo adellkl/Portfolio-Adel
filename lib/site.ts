@@ -56,4 +56,7 @@ export const BOOKING = {
   horizonDays: 45,  // réservable jusqu'à J+45
 };
 
+/** Musique d'ambiance (lib/ambient.ts) : src vide = nappe générée en direct ; sinon un fichier de public/, ex. '/audio/ambiance.mp3' */
+export const MUSIC = { src: '', volume: 1 };
+
 export const projectHref =(slug: string) => `/projets/${slug}`;

@@ -6,6 +6,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
 import { $ } from '@/lib/dom';
 import Logo from '@/components/Logo';
+import MusicToggle from './MusicToggle';
+import MusicHint from './MusicHint';
 
 export default function Nav() {
   const pathname = usePathname();
@@ -75,6 +77,7 @@ export default function Nav() {
           <a href={`${home}#projets`} data-page="projet" className={cur('projet')}>Projets</a>
           <a href="/apropos" data-page="apropos" className={cur('apropos')}>À propos</a>
           <a href="/services" data-page="services" className={cur('services')}>Services</a>
+          <MusicToggle />
           <button className="kbd-btn" data-cmdk="" aria-label="Ouvrir la palette de commandes">Rechercher <kbd>⌘K</kbd></button>
           <a href={`${home}#contact`} className="pill-white" onClick={close}>Me contacter</a>
           <button ref={burger} type="button" className={`burger${open ? ' on' : ''}`} aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -82,6 +85,7 @@ export default function Nav() {
         </div>
       </div></nav>
 
+      <MusicHint />
       <div id="mnav" className={`mnav${open ? ' open' : ''}`} aria-hidden={!open} inert={!open}>
         <ul>
           {items.map(([label, href, c], i) => (
