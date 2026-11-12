@@ -6,6 +6,8 @@
 export const COLORS = {teal:'var(--teal)',iris:'var(--iris)',lav:'var(--lav)',green:'var(--green)',coral:'var(--coral)'} as const;
 export type ColorKey = keyof typeof COLORS;
 export type VisualKey = 'planning' | 'calendar' | 'reservations' | 'catalogue' | 'permis';
+/** Polices des chartes (chargées sur les pages projet uniquement, components/Charte.tsx) */
+export type FontKey = 'newsreader' | 'schibsted' | 'plexmono' | 'caveat' | 'cormorant' | 'montserrat' | 'roboto' | 'inter' | 'system';
 export const lc = (s: string) => s[0].toLowerCase() + s.slice(1);
 
 export type Project = {
@@ -19,9 +21,12 @@ export type Project = {
   context: string;
   problems: [string, ColorKey, string][];
   approach: [string, string][];
-  results: [number, string, string][];
-  /** Section « En action » : capture pleine page du site (défile dans un cadre) ou vidéo MP4 si fournie */
-  preview?: { src: string; height: number; video?: string };
+  /** [valeur, suffixe, libellé, préfixe facultatif ex. '+'] */
+  results: [number, string, string, string?][];
+  /** Galerie bento : 5 captures du site en ligne (public/projets/<slug>/1..5.jpg), « m » = mobile */
+  gallery?: [string, 'd' | 'm'][];
+  /** Charte graphique relevée sur le site en ligne et dans le dépôt */
+  charte?: { intent: string; fonts: [string, FontKey, string][]; colors: [string, string, string][] };
 };
 
 export const PROJECTS: Project[] = [
@@ -41,7 +46,12 @@ export const PROJECTS: Project[] = [
       ["Continuité","Les anciennes adresses anglaises redirigent vers les nouvelles, et la page vidéos lit la chaîne YouTube du club."],
     ],
     results:[[11,'','pages'],[26,'','commits en moins de 3 semaines'],[16,'','Next.js, dernière version']],
-    preview:{ src:'/projets/alpha-fight-club.jpg', height:7200 },
+    gallery: [["Accueil", 'd'], ["Planning des cours", 'd'], ["Combattants", 'd'], ["Accueil sur mobile", 'm'], ["Le grappling sur mobile", 'm']],
+    charte: {
+      intent: "Une direction artistique documentaire : fond encre, papier minéral, touches de cobalt, photos en noir et blanc et légendes en mono, façon archive.",
+      fonts: [["Titres", "newsreader", "Newsreader · serif éditorial, graisse 400"], ["Texte", "schibsted", "Schibsted Grotesk · grotesque lisible"], ["Légendes et boutons", "plexmono", "IBM Plex Mono · capitales, esprit archive"], ["Notes manuscrites", "caveat", "Caveat · fiches de séance écrites à la main"]],
+      colors: [["Encre", "#161716", "Fond principal"], ["Encre 2", "#1F201F", "Surfaces"], ["Papier", "#E9E5DB", "Cartes et fiches"], ["Plomb", "#5C5A55", "Texte secondaire"], ["Cobalt", "#1747B9", "Accent et boutons"]],
+    },
   },
   {
     slug:'lebsa-danah', id:'PRJ-02', title:'Lebsa Danah', tagline:'Site, boutique et réservations d\'un showroom de caftans',
@@ -58,8 +68,13 @@ export const PROJECTS: Project[] = [
       ["Rendez-vous d'essayage","Un parcours guidé pour choisir la date et le créneau, puis confirmation par email."],
       ["Back-office sécurisé","Espace /admin protégé par Supabase Auth et des règles RLS, notifications par email, WhatsApp et Web Push."],
     ],
-    results:[[91,'','commits'],[16,'','fichiers de tests'],[3,'','canaux de notification']],
-    preview:{ src:'/projets/lebsa-danah.jpg', height:4675 },
+    results:[[60,' %','de réservations de créneaux','+'],[16,'','fichiers de tests'],[3,'','canaux de notification']],
+    gallery: [["Accueil", 'd'], ["Essayage privé", 'd'], ["La collection", 'd'], ["Accueil sur mobile", 'm'], ["La collection sur mobile", 'm']],
+    charte: {
+      intent: "Une élégance chaleureuse : un serif fin et aéré pour les titres, des tons sable et taupe, et les tenues mises en avant par de grandes photos.",
+      fonts: [["Titres", "cormorant", "Cormorant Garamond · light 300, très aéré"], ["Texte et boutons", "inter", "Inter · sobre, petites capitales espacées"]],
+      colors: [["Blanc", "#FFFFFF", "Fond principal"], ["Crème", "#F7F4EF", "Surfaces"], ["Sable", "#EFE7DD", "Sections"], ["Taupe", "#A68E79", "Accent et boutons"], ["Brun", "#6E6259", "Texte secondaire"], ["Espresso", "#211D1A", "Titres et texte"]],
+    },
   },
   {
     slug:'la-marine', id:'PRJ-03', title:'La Marine', tagline:'Le site d\'un restaurant gastronomique sur l\'île de Groix',
@@ -77,7 +92,12 @@ export const PROJECTS: Project[] = [
       ["Bilingue et référencé","Version anglaise traduite avec DeepL depuis l'admin, données structurées Restaurant et FAQ, sitemap et suivi d'audience."],
     ],
     results:[[187,'','commits'],[8,'','fonctions serveur Supabase'],[2,'','langues, français et anglais']],
-    preview:{ src:'/projets/la-marine.jpg', height:4598 },
+    gallery: [["Accueil", 'd'], ["L'alliance de la tradition", 'd'], ["Hôtels et partenaires", 'd'], ["Accueil sur mobile", 'm'], ["Partenaires sur mobile", 'm']],
+    charte: {
+      intent: "La gastronomie au bord de la mer : des titres serif avec italiques, des surtitres en capitales espacées couleur ambre, sur un fond pierre très clair.",
+      fonts: [["Titres", "cormorant", "Cormorant Garamond · romain et italique"], ["Texte et boutons", "montserrat", "Montserrat · capitales espacées pour les boutons"]],
+      colors: [["Pierre", "#FAFAF9", "Fond principal"], ["Encre", "#1C1917", "Titres et texte"], ["Gris pierre", "#57534E", "Texte secondaire"], ["Ambre", "#D97706", "Surtitres et accents"], ["Ambre foncé", "#B45309", "Bouton de réservation"]],
+    },
   },
   {
     slug:'class-gallery', id:'PRJ-04', title:'Class Gallery', tagline:'Le site et le catalogue d\'une galerie d\'art à Paris',
@@ -95,7 +115,12 @@ export const PROJECTS: Project[] = [
       ["Français et anglais","Routes et contenus traduits, formulaires sécurisés et accès direct à WhatsApp sur mobile."],
     ],
     results:[[140,'+','œuvres au catalogue'],[4,'','artistes permanents'],[2,'','langues, français et anglais']],
-    preview:{ src:'/projets/class-gallery.jpg', height:2014 },
+    gallery: [["Accueil", 'd'], ["Sélection d'œuvres", 'd'], ["Catalogue des œuvres", 'd'], ["Accueil sur mobile", 'm'], ["Œuvres sur mobile", 'm']],
+    charte: {
+      intent: "Une galerie blanche : une typographie neutre et une palette en noir et blanc, pour laisser toute la place aux œuvres.",
+      fonts: [["Titres", "roboto", "Roboto · semi-gras 600"], ["Texte et libellés", "roboto", "Roboto · regular, capitales espacées pour les catégories"]],
+      colors: [["Blanc", "#FFFFFF", "Fond et cartes"], ["Blanc cassé", "#FCFCFC", "Fond de page"], ["Gris clair", "#E5E5E5", "Bordures"], ["Gris", "#737373", "Texte secondaire"], ["Noir", "#0A0A0A", "Titres et texte"]],
+    },
   },
   {
     slug:'test-psychotechnique', id:'PRJ-05', title:'Test Psychotechnique Permis', tagline:'La prise de rendez-vous d\'un centre de tests psychotechniques',
@@ -113,6 +138,11 @@ export const PROJECTS: Project[] = [
       ["Référencement local","Les départements et villes d'Île-de-France desservis, et l'accès en transports depuis La Défense, le tram T2 et la ligne L."],
     ],
     results:[[80,' €','tarif unique, tout compris'],[3,'','situations couvertes'],[7,'j/7','ouvert de 9h à 20h']],
-    preview:{ src:'/projets/test-psychotechnique.jpg', height:5829 },
+    gallery: [["Accueil", 'd'], ["Le centre de Colombes", 'd'], ["Pourquoi choisir le centre", 'd'], ["Accueil sur mobile", 'm'], ["Les services sur mobile", 'm']],
+    charte: {
+      intent: "Rassurer et aller vite : la police du système pour un affichage immédiat, du bleu pour l'action et du vert pour les bonnes nouvelles, comme la deuxième chance offerte.",
+      fonts: [["Titres et texte", "system", "Police système (SF Pro, Segoe UI, Roboto) · aucun téléchargement"]],
+      colors: [["Gris très clair", "#F9FAFB", "Fond principal"], ["Encre", "#111827", "Titres"], ["Ardoise", "#4B5563", "Texte"], ["Bleu", "#2563EB", "Boutons de rendez-vous"], ["Émeraude", "#059669", "Validation et 2e chance"], ["Sarcelle", "#0D9488", "Logo et repères"]],
+    },
   },
 ];

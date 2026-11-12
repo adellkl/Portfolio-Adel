@@ -17,7 +17,7 @@ export default function Featured() {
               <h3>{`${p.title} — ${lc(p.tagline)}`}</h3>
               <p>{p.summary}</p>
               <div className="tags"><Tags stack={p.stack} /></div>
-              <div className="meta">{p.results.slice(0, 2).map(([v, s, l]) => <div key={l}><b data-count={v} data-suffix={s}>0</b>{l}</div>)}</div>
+              <div className="meta">{p.results.slice(0, 2).map(([v, s, l, pre]) => <div key={l}><b data-count={v} data-suffix={s} data-prefix={pre}>{`${pre ?? ''}0`}</b>{l}</div>)}</div>
               <a href={projectHref(p.slug)} className="arrow-link">Lire l&apos;étude de cas <span>→</span></a>
             </div>
             <a href={projectHref(p.slug)} className="panel shot spot reveal" style={{ '--d': '.1s' } as CSSProperties} aria-label={`Voir le projet ${p.title}`}>

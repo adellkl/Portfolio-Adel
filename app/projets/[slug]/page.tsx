@@ -8,7 +8,8 @@ import { VISUALS } from '@/components/visuals';
 import SplitTitle from '@/components/SplitTitle';
 import Tags from '@/components/Tags';
 import ProjectRuntime from '@/components/ProjectRuntime';
-import ProjectDemo from '@/components/ProjectDemo';
+import ProjectGallery from '@/components/ProjectGallery';
+import Charte from '@/components/Charte';
 
 export const dynamicParams = false;
 export function generateStaticParams() { return PROJECTS.map(p => ({ slug: p.slug })); }
@@ -64,7 +65,7 @@ export default async function ProjectPage({ params }: PageProps<'/projets/[slug]
       <div className="wrap">
         <div className="p-body">
           <aside className="toc" id="toc">
-            <a href="#contexte">Contexte</a><a href="#enjeux">Enjeux</a><a href="#approche">Approche</a><a href="#chiffres">En chiffres</a>{p.preview ? <a href="#en-action">En action</a> : null}
+            <a href="#contexte">Contexte</a><a href="#enjeux">Enjeux</a><a href="#approche">Approche</a><a href="#chiffres">En chiffres</a>{p.gallery ? <a href="#galerie">Galerie</a> : null}{p.charte ? <a href="#charte">Charte graphique</a> : null}
           </aside>
           <article>
             <section className="chapter" id="contexte">
@@ -93,11 +94,13 @@ export default async function ProjectPage({ params }: PageProps<'/projets/[slug]
               <div className="eyebrow reveal"><span className="mono">04</span>En chiffres</div>
               <h2 className="reveal">Le projet en quelques nombres.</h2>
               <div className="results">
-                {p.results.map(([v, s, l], i) => <div className="panel reveal" style={d(`${i * .08}s`)} key={i}><b data-count={v} data-suffix={s}>0</b><span>{l}</span></div>)}
+                {p.results.map(([v, s, l, pre], i) => <div className="panel reveal" style={d(`${i * .08}s`)} key={i}><b data-count={v} data-suffix={s} data-prefix={pre}>{`${pre ?? ''}0`}</b><span>{l}</span></div>)}
               </div>
             </section>
 
-            <ProjectDemo p={p} n="05" />
+            <ProjectGallery p={p} n="05" />
+
+            <Charte p={p} n="06" />
           </article>
         </div>
 

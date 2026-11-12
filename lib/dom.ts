@@ -10,7 +10,7 @@ export const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = d
 /* Compteurs */
 export function countUp(el: HTMLElement) {
   if (el.dataset.done) return; el.dataset.done = '1';
-  const end = +(el.dataset.count || 0), suf = el.dataset.suffix || '', dur = reduceMotion() ? 0 : 1600, t0 = performance.now();
+  const end = +(el.dataset.count || 0), suf = el.dataset.suffix || '', pre = el.dataset.prefix || '', dur = reduceMotion() ? 0 : 1600, t0 = performance.now();
   const dec = (String(end).split('.')[1] || '').length;
   const fmt = (n: number) => {
     const s = dec ? n.toFixed(dec).replace('.', ',') : Math.round(n);
@@ -18,7 +18,7 @@ export function countUp(el: HTMLElement) {
   };
   const f = (t: number) => {
     const p = Math.min(1, (t - t0) / (dur || 1)), e = 1 - Math.pow(1 - p, 4);
-    el.textContent = fmt(end * e) + suf; if (p < 1) requestAnimationFrame(f);
+    el.textContent = pre + fmt(end * e) + suf; if (p < 1) requestAnimationFrame(f);
   };
   requestAnimationFrame(f);
 }
