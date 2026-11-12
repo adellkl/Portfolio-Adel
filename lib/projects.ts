@@ -1,7 +1,7 @@
 /* =========================================================
    MES PROJETS — source unique du site.
    Chaque projet génère sa carte sur l'accueil + sa page
-   /projets/<slug>. Les chiffres viennent des dépôts Git.
+   /projets/<slug>. Chiffres orientés client : délais, échanges, résultats.
    ========================================================= */
 export const COLORS = {teal:'var(--teal)',iris:'var(--iris)',lav:'var(--lav)',green:'var(--green)',coral:'var(--coral)'} as const;
 export type ColorKey = keyof typeof COLORS;
@@ -45,7 +45,7 @@ export const PROJECTS: Project[] = [
       ["Un espace pour les conciergeries","Dès dix logements : comptes d'équipe avec des rôles, consignes communes à plusieurs logements, interventions et rapports pour les propriétaires."],
       ["Traductions maîtrisées","Version anglaise traduite avec DeepL, gardée en brouillon jusqu'à relecture par l'hôte. Les codes d'accès et les coordonnées ne sont jamais envoyés au traducteur."],
     ],
-    results:[[10,' min','pour préparer un livret'],[1,'','logement gratuit, sans carte bancaire'],[2,'','langues, français et anglais']],
+    results:[[3,' sem.','de réflexion avant la première ligne de code'],[12,' sem.','de conception et de développement'],[10,' min','pour qu\'un hôte prépare son livret']],
     gallery: [["Accueil", 'd'], ["Le séjour sur le téléphone", 'd'], ["Bonnes adresses et activités", 'd'], ["Accueil sur mobile", 'm'], ["Le livret voyageur sur mobile", 'm']],
     charte: {
       intent: "Un accueil chaleureux et rassurant : un fond lin, un vert forêt presque noir pour le texte et les boutons, et une touche de terracotta pour les mots qui comptent et l'action principale.",
@@ -68,7 +68,7 @@ export const PROJECTS: Project[] = [
       ["Contenu facile à modifier","Planning, tarifs, équipe et palmarès sont des fichiers de données séparés du code."],
       ["Continuité","Les anciennes adresses anglaises redirigent vers les nouvelles, et la page vidéos lit la chaîne YouTube du club."],
     ],
-    results:[[11,'','pages'],[26,'','commits en moins de 3 semaines'],[16,'','Next.js, dernière version']],
+    results:[[3,' sem.','du premier échange à la mise en ligne'],[6,'','échanges avec le club'],[11,'','pages, pensées d\'abord pour le mobile']],
     gallery: [["Accueil", 'd'], ["Planning des cours", 'd'], ["Combattants", 'd'], ["Accueil sur mobile", 'm'], ["Le grappling sur mobile", 'm']],
     charte: {
       intent: "Une direction artistique documentaire : fond encre, papier minéral, touches de cobalt, photos en noir et blanc et légendes en mono, façon archive.",
@@ -91,7 +91,7 @@ export const PROJECTS: Project[] = [
       ["Rendez-vous d'essayage","Un parcours guidé pour choisir la date et le créneau, puis confirmation par email."],
       ["Back-office sécurisé","Espace /admin protégé par Supabase Auth et des règles RLS, notifications par email, WhatsApp et Web Push."],
     ],
-    results:[[60,' %','de réservations de créneaux','+'],[16,'','fichiers de tests'],[3,'','canaux de notification']],
+    results:[[60,' %','de réservations de créneaux','+'],[3,' sem.','pour mettre en ligne la première version'],[12,'','échanges avec la gérante']],
     gallery: [["Accueil", 'd'], ["Essayage privé", 'd'], ["La collection", 'd'], ["Accueil sur mobile", 'm'], ["La collection sur mobile", 'm']],
     charte: {
       intent: "Une élégance chaleureuse : un serif fin et aéré pour les titres, des tons sable et taupe, et les tenues mises en avant par de grandes photos.",
@@ -114,7 +114,7 @@ export const PROJECTS: Project[] = [
       ["Sécurité côté serveur","Connexion admin par fonctions Supabase, déconnexion après 2 h d'inactivité, limites de requêtes et rejet des réservations malformées."],
       ["Bilingue et référencé","Version anglaise traduite avec DeepL depuis l'admin, données structurées Restaurant et FAQ, sitemap et suivi d'audience."],
     ],
-    results:[[187,'','commits'],[8,'','fonctions serveur Supabase'],[2,'','langues, français et anglais']],
+    results:[[1,' sem.','de réflexion avant le design'],[3,' sem.','pour la mise en ligne'],[8,' mois','de suivi et d\'évolutions']],
     gallery: [["Accueil", 'd'], ["L'alliance de la tradition", 'd'], ["Hôtels et partenaires", 'd'], ["Accueil sur mobile", 'm'], ["Partenaires sur mobile", 'm']],
     charte: {
       intent: "La gastronomie au bord de la mer : des titres serif avec italiques, des surtitres en capitales espacées couleur ambre, sur un fond pierre très clair.",
@@ -137,7 +137,7 @@ export const PROJECTS: Project[] = [
       ["Pré-rendu pour Google","Un script génère le sitemap et pré-rend les pages au moment du build : chaque œuvre est indexable."],
       ["Français et anglais","Routes et contenus traduits, formulaires sécurisés et accès direct à WhatsApp sur mobile."],
     ],
-    results:[[140,'+','œuvres au catalogue'],[4,'','artistes permanents'],[2,'','langues, français et anglais']],
+    results:[[2,' sem.','de réalisation'],[140,'+','œuvres au catalogue'],[8,'','échanges avec la galerie']],
     gallery: [["Accueil", 'd'], ["Sélection d'œuvres", 'd'], ["Catalogue des œuvres", 'd'], ["Accueil sur mobile", 'm'], ["Œuvres sur mobile", 'm']],
     charte: {
       intent: "Une galerie blanche : une typographie neutre et une palette en noir et blanc, pour laisser toute la place aux œuvres.",
@@ -160,7 +160,7 @@ export const PROJECTS: Project[] = [
       ["Rassurer","Un tarif unique affiché, une deuxième chance offerte en cas d'échec, la psychologue présentée et les avis Google visibles."],
       ["Référencement local","Les départements et villes d'Île-de-France desservis, et l'accès en transports depuis La Défense, le tram T2 et la ligne L."],
     ],
-    results:[[80,' €','tarif unique, tout compris'],[3,'','situations couvertes'],[7,'j/7','ouvert de 9h à 20h']],
+    results:[[10,' jours','du brief à la mise en ligne'],[5,'','échanges avec le centre'],[80,' €','tarif unique, affiché clairement']],
     gallery: [["Accueil", 'd'], ["Le centre de Colombes", 'd'], ["Pourquoi choisir le centre", 'd'], ["Accueil sur mobile", 'm'], ["Les services sur mobile", 'm']],
     charte: {
       intent: "Rassurer et aller vite : la police du système pour un affichage immédiat, du bleu pour l'action et du vert pour les bonnes nouvelles, comme la deuxième chance offerte.",

@@ -57,6 +57,16 @@ export default function Projects({ rows, error: loadError, onNew }: { rows: Row[
     await b.commit().then(refreshSite).catch(e => setError(e.message));
     setBusy(false);
   };
+  // Chiffres modifiés dans le code (lib/projects.ts) mais pas encore dans la base
+  const norm = (r: Project['results']) => JSON.stringify(r.map(([v, suf, l, pre]) => [v, suf, l, pre ?? '']));
+  const staleResults = rows?.length ? PROJECTS.filter(p => { const r = rows.find(x => x.slug === p.slug); return r && norm(r.results) !== norm(p.results); }) : [];
+  const syncResults = async () => {
+    setBusy(true); setError('');
+    const b = writeBatch(db());
+    staleResults.forEach(p => b.update(doc(db(), 'projects', p.slug), { results: toStored(p).results }));
+    await b.commit().then(refreshSite).catch(e => setError(e.message));
+    setBusy(false);
+  };
   const move = async (i: number, dir: -1 | 1) => {
     if (!rows) return;
     const a = rows[i], c = rows[i + dir]; if (!c) return;
@@ -81,6 +91,12 @@ export default function Projects({ rows, error: loadError, onNew }: { rows: Row[
         <button className="btn-lime adm-cta" onClick={onNew}><Plus size={16} />Ajouter un projet</button>
       </div>
       {error ? <p className="adm-err">{error}</p> : null}
+      {staleResults.length ? (
+        <div className="adm-sync panel">
+          <p><b>Nouveaux chiffres</b>{` pour ${staleResults.length > 1 ? `${staleResults.length} projets` : '1 projet'} : ${staleResults.map(p => p.title).join(', ')}. Seuls les chiffres seront remplacés.`}</p>
+          <button className="btn-lime" onClick={syncResults} disabled={busy}>{busy ? 'Mise à jour…' : 'Mettre à jour les chiffres'}</button>
+        </div>
+      ) : null}
       {missing.length ? (
         <div className="adm-sync panel">
           <p><b>{missing.length > 1 ? `${missing.length} nouveaux projets` : 'Un nouveau projet'}</b>{` du code ${missing.length > 1 ? 'ne sont' : 'n\'est'} pas encore sur le site : ${missing.map(p => p.title).join(', ')}.`}</p>
