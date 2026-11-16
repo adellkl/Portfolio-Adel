@@ -2,10 +2,11 @@ import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { pageMeta } from '@/lib/seo';
-import { COLORS, lc } from '@/lib/projects';
+import { COLORS, accentOf, lc } from '@/lib/projects';
 import { getProject, getProjects } from '@/lib/data';
 import { SITE_URL, projectHref } from '@/lib/site';
-import { ProjectVisual } from '@/components/visuals';
+import { ProjectVisual, galleryImage } from '@/components/visuals';
+import AnimatedOutlineMarquee from '@/components/AnimatedOutlineMarquee';
 import SplitTitle from '@/components/SplitTitle';
 import Tags from '@/components/Tags';
 import ProjectRuntime from '@/components/ProjectRuntime';
@@ -36,9 +37,19 @@ export default async function ProjectPage({ params }: PageProps<'/projets/[slug]
   return (
     <main id="page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, headline: `${p.title} — ${p.tagline}`, description: p.summary,
-        url: `${SITE_URL}${projectHref(p.slug)}`, dateCreated: p.year, inLanguage: 'fr-FR', keywords: p.stack.map(([n]) => n).join(', '),
-        author: { '@id': `${SITE_URL}/#adel` }, ...(p.url ? { sameAs: p.url } : {}),
+        '@context': 'https://schema.org', '@graph': [
+          {
+            '@type': 'CreativeWork', name: p.title, headline: `${p.title} — ${p.tagline}`, description: p.summary,
+            url: `${SITE_URL}${projectHref(p.slug)}`, dateCreated: p.year, inLanguage: 'fr-FR', keywords: p.stack.map(([n]) => n).join(', '),
+            author: { '@id': `${SITE_URL}/#adel` }, ...(p.url ? { sameAs: p.url } : {}),
+            ...(p.gallery?.length ? { image: /^https?:/.test(galleryImage(p)) ? galleryImage(p) : `${SITE_URL}${galleryImage(p)}` } : {}),
+          },
+          { '@type': 'BreadcrumbList', itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_URL },
+            { '@type': 'ListItem', position: 2, name: 'Projets', item: `${SITE_URL}/#projets` },
+            { '@type': 'ListItem', position: 3, name: p.title, item: `${SITE_URL}${projectHref(p.slug)}` },
+          ] },
+        ],
       }).replace(/</g, '\\u003c') }} />
       <header className="p-hero">
         <div className="wrap">
@@ -105,15 +116,16 @@ export default async function ProjectPage({ params }: PageProps<'/projets/[slug]
           </article>
         </div>
 
-        <a href={projectHref(nxt.slug)} className="panel next spot reveal">
-          <div>
-            <span className="mono">{`PROJET SUIVANT · ${nxt.id}`}</span>
-            <h3>{nxt.title}</h3>
-            <span className="arrow-link">{`${nxt.tagline} `}<span>→</span></span>
-          </div>
-          <div className="preview in"><ProjectVisual p={nxt} /></div>
-        </a>
       </div>
+
+      {/* Projet suivant : titre géant qui défile par-dessus la 1re photo du projet suivant */}
+      <a href={projectHref(nxt.slug)} className="nx reveal" aria-label={`Projet suivant : ${nxt.title}, ${lc(nxt.tagline)}`}>
+        <AnimatedOutlineMarquee text={nxt.title} image={nxt.gallery?.length ? galleryImage(nxt) : null} color={accentOf(nxt)}>
+          <span className="mono">{`PROJET SUIVANT · ${nxt.id}`}</span>
+          <span className="nx-tag">{nxt.tagline}</span>
+          <span className="nx-go">Voir le projet <span>→</span></span>
+        </AnimatedOutlineMarquee>
+      </a>
       <ProjectRuntime />
     </main>
   );

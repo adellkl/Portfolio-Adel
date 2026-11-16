@@ -1,39 +1,67 @@
 'use client';
-/* Outils : survol/focus d'une pill → projets qui l'utilisent (interactions.js §4c) */
-import { useEffect, useRef, type CSSProperties } from 'react';
-import { $, $$, esc } from '@/lib/dom';
+/* Outils (À propos) : deux bandeaux pleine largeur qui défilent en sens opposé
+   (en haut : front et animation, de droite à gauche ; en bas : back et infrastructure, de gauche à droite).
+   Chaque techno : logo, nom et rôle concret. Survol / focus : la ligne se met en pause, le logo prend sa couleur
+   de marque et les projets où je l'ai utilisé s'affichent sous les bandeaux.
+   L'outil actif est marqué par aria-pressed (pas par la classe : .reveal reçoit .in hors de React). */
+import { useState, type CSSProperties } from 'react';
+import type { Project } from '@/lib/projects';
 import { USES, projectHref } from '@/lib/site';
+import { techKey, techLogo } from '@/lib/tech-logos';
 
-const groups: [string, string, string[]][] = [
-  ['Front-end', 'Les interfaces que voient vos clients', ['React', 'Next.js', 'TypeScript', 'Tailwind CSS']],
-  ['Back-end & données', 'Bases de données, authentification et API', ['Supabase', 'Firebase', 'API', 'PostgreSQL']],
-  ['Déploiement', 'Mise en ligne, domaines et e-mails', ['Vercel', 'Hébergement', 'Domaines', 'E-mails transactionnels']],
-  ['Fonctionnalités', 'Ce que je construis le plus souvent', ['Réservation', 'Paiement en ligne', 'Authentification', 'Administration', 'Formulaires', 'Automatisations']],
+type Tool = [name: string, role: string];
+const ROWS: Tool[][] = [
+  [['Next.js', 'Framework web'], ['React', 'Interfaces'], ['TypeScript', 'Code fiable'], ['Tailwind CSS', 'Styles'], ['Vite', 'Build rapide'], ['GSAP', 'Animations'], ['Motion', 'Micro-interactions'], ['DeepL', 'Traduction']],
+  [['Supabase', 'Base de données'], ['Firebase', 'Temps réel'], ['PostgreSQL', 'Données'], ['Stripe', 'Paiement'], ['Vercel', 'Hébergement'], ['Express', 'API'], ['Resend', 'E-mails']],
 ];
 
-export default function Stack({ projects }: { projects: { slug: string; title: string }[] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const stack = ref.current!;
-    const show = (c: HTMLElement) => {
-      const panel = c.closest('.panel')!, uses = $('.uses', panel)!, list = (USES[c.textContent!] || []).map(s => projects.find(p => p.slug === s)).filter(p => !!p);
-      $$('.pill', panel).forEach(x => x.classList.toggle('on', x === c));
-      uses.innerHTML = list.length ? `<span class="mono">${c.textContent!.toUpperCase()} →</span> ${list.map(p => `<a href="${projectHref(p.slug)}">${esc(p.title)}</a>`).join('')}` : '';
-      uses.classList.remove('flash'); void uses.offsetWidth; uses.classList.add('flash');
-    };
-    const on = (e: Event) => { const c = (e.target as Element).closest<HTMLElement>('.pill'); if (c) show(c); };
-    stack.addEventListener('pointerover', on);
-    stack.addEventListener('focusin', on);
-    return () => { stack.removeEventListener('pointerover', on); stack.removeEventListener('focusin', on); };
-  }, [projects]);
+type P = Pick<Project, 'slug' | 'title' | 'stack'>;
+
+/* Couleur de marque lisible sur fond sombre (les marques noires restent blanches) */
+const brand = (hex: string) => {
+  const n = parseInt(hex, 16), l = ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
+  return l < 60 ? 'var(--paper)' : `#${hex}`;
+};
+
+export default function Stack({ projects }: { projects: P[] }) {
+  const [tool, setTool] = useState<string | null>(null);
+  // Projets d'un outil : leur stack, complétée par USES (outils hors stack : Vercel, PostgreSQL…)
+  const usedIn = (t: string) => projects.filter(p => p.stack.some(([n]) => techKey(n) === techKey(t)) || USES[t]?.includes(p.slug));
+  const list = tool ? usedIn(tool) : [];
+
+  const card = ([name, role]: Tool, key: string, clone: boolean) => {
+    const logo = techLogo(name);
+    return (
+      <button type="button" key={key} className="tk" aria-pressed={tool === name} tabIndex={clone ? -1 : 0} aria-hidden={clone || undefined}
+        style={logo ? ({ '--brand': brand(logo.hex) } as CSSProperties) : undefined}
+        onMouseEnter={() => setTool(name)} onFocus={() => setTool(name)}>
+        <span className="tk-logo">{logo ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d={logo.path} /></svg> : null}</span>
+        <span className="tk-t"><b>{name}</b><span>{role}</span></span>
+      </button>
+    );
+  };
 
   return (
-    <div className="stack" id="stack" ref={ref}>
-      {groups.map(([t, d, c], i) => <div className="panel reveal spot" style={{ '--d': `${i * .06}s` } as CSSProperties} key={t}>
-        <h4>{t}<span className="mono">{String(c.length).padStart(2, '0')}</span></h4>
-        <p style={{ fontSize: 14, color: 'var(--fog)', marginBottom: 16 }}>{d}</p>
-        <div className="chips">{c.map(x => <span className="pill" tabIndex={0} role="button" key={x}>{x}</span>)}</div>
-        <div className="uses"><span className="mono">Survolez un outil pour voir où je l&apos;ai utilisé</span></div></div>)}
+    <div className="tools" id="stack" onMouseLeave={() => setTool(null)}>
+      <div className="tk-band reveal">
+        {ROWS.map((row, r) => (
+          <div className={`tk-row${r ? ' rev' : ''}`} key={r}>
+            <div className="tk-track" style={{ '--n': row.length } as CSSProperties}>
+              {/* Deux copies identiques → boucle sans saut */}
+              {row.map((t, i) => card(t, `a${i}`, false))}
+              {row.map((t, i) => card(t, `b${i}`, true))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="wrap-in tools-uses" aria-live="polite">
+        {tool ? (
+          <span className="tools-line" key={tool}>
+            <span className="mono">{`${tool.toUpperCase()} →`}</span>
+            {list.length ? list.map(p => <a key={p.slug} href={projectHref(p.slug)}>{p.title}</a>) : <span className="tools-none">utilisé sur mes projets en cours</span>}
+          </span>
+        ) : <span className="mono tools-hint">Survolez une techno pour voir sur quels projets je l&apos;ai utilisée</span>}
+      </div>
     </div>
   );
 }

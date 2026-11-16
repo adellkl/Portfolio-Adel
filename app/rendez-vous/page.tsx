@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { pageMeta } from '@/lib/seo';
 import SplitTitle from '@/components/SplitTitle';
 import { BookingSection } from '@/components/ui/booking-section';
+import { AfterCall } from '@/components/ui/after-call';
 
 export const metadata: Metadata = pageMeta('Réserver un appel — Adel Loukal', 'Réservez un appel découverte de 15 minutes avec Adel Loukal pour parler de votre site ou de votre application web.', '/rendez-vous');
 
@@ -17,6 +18,7 @@ export default function RendezVousPage() {
         </div>
       </header>
       <BookingSection />
+      <AfterCall />
     </>
   );
 }

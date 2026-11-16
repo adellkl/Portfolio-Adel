@@ -22,6 +22,10 @@ export function FaqSection({ n, id = 'faq' }: { n: string; id?: string }) {
 
   return (
     <section className="block" id={id}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'FAQPage',
+        mainEntity: FAQ.map(f => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })),
+      }).replace(/</g, '\\u003c') }} />
       <div className="wrap">
         <div className="eyebrow reveal"><span className="mono">{n}</span>Questions fréquentes</div>
         <h2 className="reveal" style={{ '--d': '.08s' } as CSSProperties}>Avant de se lancer, <span className="muted">les réponses aux questions qu&apos;on me pose le plus.</span></h2>

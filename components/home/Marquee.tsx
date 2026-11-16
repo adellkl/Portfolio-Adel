@@ -1,11 +1,13 @@
-/* Outils (tirés des projets), en 3 copies pour une boucle sans fin, même sur très grand écran */
-const tools = ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Vite', 'Supabase', 'Firebase', 'Stripe', 'Vercel', 'GSAP', 'Framer Motion', 'Motion', 'Express', 'DeepL API', 'Resend'];
+/* Sous le hero de l'accueil : les technos de mes projets, en deux bandeaux qui défilent en sens opposé
+   (logo, nom, rôle ; survol → projets où je l'ai utilisée). Voir components/about/Stack.tsx. */
+import type { Project } from '@/lib/projects';
+import Stack from '@/components/about/Stack';
 
-export default function Marquee() {
+export default function Marquee({ projects }: { projects: Project[] }) {
   return (
     <div className="strip">
       <small>Les outils de mes projets</small>
-      <div className="marquee"><div className="track" id="track">{[...tools, ...tools, ...tools].map((t, i) => <span key={i} aria-hidden={i >= tools.length || undefined}>{t}</span>)}</div></div>
+      <Stack projects={projects} />
     </div>
   );
 }

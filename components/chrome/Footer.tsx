@@ -16,7 +16,7 @@ export default function Footer() {
       <div className="wrap">
         <span ref={year}>{`© ${BUILD_YEAR} Adel Loukal · Fait main, sans template`}</span>
         <span className="foot-links"><a href="/#projets">Projets</a><a href="/apropos">À propos</a><a href="/services">Services</a><a href="/rendez-vous">Rendez-vous</a><a href="/#contact">Contact</a></span>
-        <span className="mono" style={{ fontSize: 12 }}>Appuyez sur <kbd>⌘K</kbd> pour naviguer</span>
+        <span className="mono foot-kbd" style={{ fontSize: 12 }}>Appuyez sur <kbd>⌘K</kbd> pour naviguer</span>
       </div>
       {/* Informations légales de l'entreprise */}
       <div className="wrap foot-legal">

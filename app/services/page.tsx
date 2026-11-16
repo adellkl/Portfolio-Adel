@@ -2,16 +2,23 @@ import type { Metadata } from 'next';
 import { pageMeta } from '@/lib/seo';
 import { Fragment, type CSSProperties } from 'react';
 import SplitTitle from '@/components/SplitTitle';
-import Steps from '@/components/services/Steps';
 import Quiz from '@/components/services/Quiz';
 import CtaBlock from '@/components/CtaBlock';
 import { FaqSection } from '@/components/ui/faq-section';
 import { getProjects } from '@/lib/data';
 import { onlineCount, projectHref } from '@/lib/site';
 
-export const metadata: Metadata = pageMeta('Services — Adel Loukal', 'Sites vitrines, applications web sur mesure, réservation et paiement, espaces clients, e-commerce et refontes : ce que je peux construire pour vous, et comment.', '/services');
+export const metadata: Metadata = pageMeta('Services — Sites et applications web sur mesure · Adel Loukal', 'Sites vitrines, applications web sur mesure, réservation et paiement, espaces clients, e-commerce et refontes : ce que je peux construire pour vous, et comment.', '/services');
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
+
+/* Méthode : quatre étapes, toutes visibles */
+const STEPS: [string, string][] = [
+  ['Comprendre', 'Le besoin réel, les contraintes, le budget. On définit le problème avant de dessiner quoi que ce soit.'],
+  ['Esquisser', 'Une direction visuelle et un premier parcours cliquable, testés tôt pour ne garder que ce qui fonctionne.'],
+  ['Construire', 'Code propre, règles de sécurité côté serveur, tests automatisés et performance dès le départ.'],
+  ['Mettre en ligne', 'Déploiement, nom de domaine, référencement, puis documentation pour modifier le contenu soi-même.'],
+];
 
 const services: [string, string, string[], [string, string][]][] = [
   ['Sites vitrines modernes et performants', "Un site soigné et rapide qui présente votre activité, vos horaires et vos tarifs, et que vous pouvez faire évoluer facilement.",
@@ -76,11 +83,18 @@ export default async function ServicesPage() {
         <div className="wrap">
           <div className="eyebrow reveal"><span className="mono">01</span>Méthode</div>
           <h2 className="reveal" style={d('.08s')}>Une façon de travailler simple et répétable.</h2>
-          <div className="process">
-            <Steps />
-            <div className="counters" id="counters">
-              {counters.map(([v, s, l, pre], i) => <div className="panel counter reveal" style={d(`${i * .06}s`)} key={l}><b data-count={v} data-suffix={s} data-prefix={pre}>{`${pre ?? ''}0${s}`}</b><span>{l}</span></div>)}
-            </div>
+          {/* 4 étapes visibles d'un coup, puis les chiffres clés sur une seule bande */}
+          <ol className="mt-steps" id="steps">
+            {STEPS.map(([t, txt], i) => (
+              <li className="reveal" style={d(`${i * .06}s`)} key={t}>
+                <span className="mono">{`0${i + 1}`}</span>
+                <b>{t}</b>
+                <p>{txt}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-figs reveal" id="counters">
+            {counters.map(([v, s, l, pre]) => <div key={l}><b data-count={v} data-suffix={s} data-prefix={pre}>{`${pre ?? ''}0${s}`}</b><span>{l}</span></div>)}
           </div>
         </div>
       </section>

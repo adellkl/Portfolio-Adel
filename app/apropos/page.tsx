@@ -3,20 +3,18 @@ import { pageMeta } from '@/lib/seo';
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import SplitTitle from '@/components/SplitTitle';
-import Stack from '@/components/about/Stack';
 import Timeline from '@/components/about/Timeline';
 import CtaBlock from '@/components/CtaBlock';
 import { getProjects } from '@/lib/data';
 import { onlineCount } from '@/lib/site';
 
-export const metadata: Metadata = pageMeta('À propos — Adel Loukal', 'Qui je suis, ma façon de travailler, mes outils et la chronologie de mes projets.', '/apropos');
+export const metadata: Metadata = pageMeta('À propos — Adel Loukal, développeur full-stack en Île-de-France', 'Adel Loukal, développeur full-stack freelance : parcours, principes de travail et chronologie des sites et applications livrés.', '/apropos');
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
 const ico = { width: 18, height: 18, viewBox: '0 0 18 18', fill: 'none', stroke: '#d0d6e0', strokeWidth: 1.3 } as const;
 
 export default async function AboutPage() {
   const projects = await getProjects();
-  const links = projects.map(p => ({ slug: p.slug, title: p.title }));
   return (
     <>
       <header className="page-hero" id="top">
@@ -24,8 +22,7 @@ export default async function AboutPage() {
         <div className="wrap">
           <div className="eyebrow fade"><span className="mono">À PROPOS</span></div>
           <SplitTitle text="Entre le design et le code,|_là où les produits se jouent._" />
-          <p className="lede fade" style={{ transitionDelay: '.7s' }}>Développeur full-stack et créateur d&apos;expériences digitales, du design de l&apos;interface à la mise en ligne.</p>
-        </div>
+          <p className="lede fade" style={{ transitionDelay: '.7s' }}>Développeur full-stack et créateur d&apos;expériences digitales, du design de l&apos;interface à la mise en ligne.</p>        </div>
       </header>
 
       {/* ============ BIO ============ */}
@@ -85,25 +82,16 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ============ OUTILS ============ */}
-      <section className="block">
-        <div className="wrap">
-          <div className="eyebrow reveal"><span className="mono">02</span>Outils</div>
-          <h2 className="reveal" style={d('.08s')}>Ce que j&apos;utilise au quotidien.</h2>
-          <Stack projects={links} />
-        </div>
-      </section>
-
       {/* ============ CHRONOLOGIE ============ */}
       <section className="block" id="parcours">
         <div className="wrap">
-          <div className="eyebrow reveal"><span className="mono">03</span>Chronologie</div>
+          <div className="eyebrow reveal"><span className="mono">02</span>Chronologie</div>
           <h2 className="reveal" style={d('.08s')}>Un an de projets livrés.</h2>
           <Timeline projects={projects} />
         </div>
       </section>
 
-      <CtaBlock n="04" />
+      <CtaBlock n="03" />
     </>
   );
 }

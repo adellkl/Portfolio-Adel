@@ -5,7 +5,7 @@ import Nav from '@/components/chrome/Nav';
 import Footer from '@/components/chrome/Footer';
 import CommandPalette from '@/components/chrome/CommandPalette';
 import MotionRuntime from '@/components/motion/MotionRuntime';
-import { GITHUB, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
+import { EMAIL, GITHUB, LEGAL, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
 import { getProjects } from '@/lib/data';
 
 // adjustFontFallback: false — sinon next/font intercale une police « Fallback » (Arial ajusté) couvrant
@@ -14,19 +14,20 @@ import { getProjects } from '@/lib/data';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap', adjustFontFallback: false });
 const mono = JetBrains_Mono({ subsets: ['latin'], weight: '400', variable: '--font-mono', display: 'swap', adjustFontFallback: false });
 
-const DESCRIPTION = "Portfolio d'Adel Loukal, développeur full-stack : Alpha Fight Club, Lebsa Danah, La Marine, Class Gallery, Test Psychotechnique Permis. Sites et applications web, de l'interface à la mise en ligne.";
+const DESCRIPTION = "Adel Loukal, développeur full-stack freelance en Île-de-France : sites vitrines, sites de réservation et applications web sur mesure, du design à la mise en ligne.";
+const HOME_TITLE = `${SITE_NAME} — Développeur web freelance, sites et applications`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+  title: HOME_TITLE,
   description: DESCRIPTION,
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
   keywords: ['Adel Loukal', 'développeur full-stack', 'développeur web freelance', 'création de site internet', 'site vitrine', 'application web sur mesure', 'site de réservation', 'Next.js', 'React', 'Supabase', 'Île-de-France'],
   alternates: { canonical: '/' },
-  openGraph: { type: 'website', locale: 'fr_FR', siteName: SITE_NAME, url: '/', title: `${SITE_NAME} — ${SITE_TAGLINE}`, description: DESCRIPTION },
-  twitter: { card: 'summary_large_image', title: `${SITE_NAME} — ${SITE_TAGLINE}`, description: DESCRIPTION },
+  openGraph: { type: 'website', locale: 'fr_FR', siteName: SITE_NAME, url: '/', title: HOME_TITLE, description: DESCRIPTION },
+  twitter: { card: 'summary_large_image', title: HOME_TITLE, description: DESCRIPTION },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
   formatDetection: { telephone: false, email: false, address: false },
 };
@@ -41,7 +42,19 @@ const jsonLd = {
       '@type': 'Person', '@id': `${SITE_URL}/#adel`, name: SITE_NAME, url: SITE_URL, image: `${SITE_URL}/images/adel-loukal.webp`,
       jobTitle: 'Développeur full-stack', description: SITE_TAGLINE, sameAs: [GITHUB],
       address: { '@type': 'PostalAddress', addressRegion: 'Île-de-France', addressCountry: 'FR' },
-      knowsAbout: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Firebase', 'PostgreSQL', 'Vercel'],
+      knowsAbout: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Vite', 'Supabase', 'Firebase', 'PostgreSQL', 'Stripe', 'Vercel', 'GSAP', 'Express'],
+      worksFor: { '@id': `${SITE_URL}/#entreprise` },
+    },
+    {
+      '@type': 'ProfessionalService', '@id': `${SITE_URL}/#entreprise`, name: `${LEGAL.company} — ${SITE_NAME}`, url: SITE_URL, email: EMAIL,
+      image: `${SITE_URL}/images/adel-loukal.webp`, description: DESCRIPTION, founder: { '@id': `${SITE_URL}/#adel` },
+      areaServed: [{ '@type': 'AdministrativeArea', name: 'Île-de-France' }, { '@type': 'Country', name: 'France' }],
+      address: { '@type': 'PostalAddress', addressRegion: 'Île-de-France', addressCountry: 'FR' },
+      knowsLanguage: ['fr', 'en'],
+      hasOfferCatalog: { '@type': 'OfferCatalog', name: 'Services', itemListElement: [
+        'Sites vitrines', 'Applications web sur mesure', 'Plateformes de réservation et paiement',
+        'Espaces clients et tableaux de bord', 'E-commerce et intégrations', 'Refonte, maintenance et évolution',
+      ].map(name => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })) },
     },
     { '@type': 'WebSite', '@id': `${SITE_URL}/#site`, url: SITE_URL, name: SITE_NAME, inLanguage: 'fr-FR', publisher: { '@id': `${SITE_URL}/#adel` } },
   ],

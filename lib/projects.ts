@@ -10,6 +10,22 @@ export type VisualKey = 'livret' | 'planning' | 'calendar' | 'reservations' | 'c
 export type FontKey = 'geist' | 'figtree' | 'newsreader' | 'schibsted' | 'plexmono' | 'caveat' | 'cormorant' | 'montserrat' | 'roboto' | 'inter' | 'system';
 export const lc = (s: string) => s[0].toLowerCase() + s.slice(1);
 
+/** Couleur d'accent de la charte d'un projet (texte qui défile du « projet suivant ») :
+    la couleur dont le rôle mentionne l'accent, sinon les boutons, sinon la plus saturée ;
+    palette en noir et blanc → blanc. Sans charte : null (couleur du site). */
+export function accentOf(p: Pick<Project, 'charte'>): string | null {
+  const colors = p.charte?.colors.filter(([, hex]) => /^#[0-9a-f]{6}$/i.test(hex)) ?? [];
+  if (!colors.length) return null;
+  const sat = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => v / 255);
+    const mx = Math.max(...c), mn = Math.min(...c);
+    return mx === 0 ? 0 : (mx - mn) / mx;
+  };
+  const byRole = (re: RegExp) => colors.find(([, hex, role]) => re.test(role) && sat(hex) > .15)?.[1];
+  const vivid = [...colors].sort((a, b) => sat(b[1]) - sat(a[1]))[0][1];
+  return byRole(/accent/i) ?? byRole(/bouton/i) ?? (sat(vivid) > .15 ? vivid : '#FFFFFF');
+}
+
 export type Project = {
   slug: string; id: string; title: string; tagline: string;
   category: string; year: string; period: string; status: string; role: string;
