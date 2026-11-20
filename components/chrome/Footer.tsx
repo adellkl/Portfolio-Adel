@@ -21,7 +21,7 @@ export default function Footer() {
       {/* Informations légales de l'entreprise */}
       <div className="wrap foot-legal">
         <span className="mono">{`${LEGAL.company} · ${LEGAL.owner}, EI · SIREN ${LEGAL.siren} · RCS Bobigny`}</span>
-        <span className="foot-legal-links"><a href="/mentions-legales">Mentions légales</a><a href="/confidentialite">Confidentialité</a></span>
+        <span className="foot-legal-links"><a href="/mentions-legales">Mentions légales</a><a href="/confidentialite">Confidentialité</a><button type="button" className="foot-cookies" onClick={() => dispatchEvent(new Event('consent:open'))}>Gérer les cookies</button></span>
       </div>
     </footer>
   );

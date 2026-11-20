@@ -2,10 +2,15 @@ import type { Project } from './projects';
 
 export const EMAIL = 'adelloukal2@gmail.com';
 
-/** URL publique du site (SEO : sitemap, robots, canonical, Open Graph).
-    Ordre : NEXT_PUBLIC_SITE_URL (à définir avec ton domaine) → domaine de production Vercel → local. */
+/** URL publique du site (SEO : sitemap, robots, canonical, Open Graph, données structurées).
+    NEXT_PUBLIC_SITE_URL (Vercel) → sinon le domaine adelloukal.fr en production, localhost en local. */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL
-  || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000')).replace(/\/$/, '');
+  || (process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production' ? 'https://adelloukal.fr' : 'http://localhost:3000')).replace(/\/$/, '');
+
+/** Google Tag Manager (le conteneur charge Google Analytics 4, G-QWGNR2P5BL). Vide = pas de mesure. */
+export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-PNKDB8PF';
+/** Choix du visiteur pour la mesure d'audience (localStorage), lu dans <head> et par le bandeau */
+export const CONSENT_KEY = 'consent-analytics';
 export const SITE_NAME = 'Adel Loukal';
 export const SITE_TAGLINE = 'Développeur full-stack & créateur d’expériences digitales';
 export const GITHUB = 'https://github.com/adellkl';

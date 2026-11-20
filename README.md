@@ -26,7 +26,7 @@ npm run lint
 
 ## Mise en ligne
 
-Définir la variable d'environnement `NEXT_PUBLIC_SITE_URL` avec le domaine du site (ex. `https://www.mon-domaine.fr`) pour le sitemap, le robots.txt et les balises de partage.
+Le site est en ligne sur **https://adelloukal.fr** (Vercel, déploiement automatique à chaque push sur `main`). Domaine et DNS chez Gandi, Google Search Console, Tag Manager et Analytics (avec bandeau de consentement) : tout est documenté dans [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md).
 
 ## Dashboard (/admin) et Firebase
 

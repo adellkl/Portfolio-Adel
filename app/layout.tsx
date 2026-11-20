@@ -5,7 +5,9 @@ import Nav from '@/components/chrome/Nav';
 import Footer from '@/components/chrome/Footer';
 import CommandPalette from '@/components/chrome/CommandPalette';
 import MotionRuntime from '@/components/motion/MotionRuntime';
-import { EMAIL, GITHUB, LEGAL, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
+import { CONSENT_KEY, EMAIL, GITHUB, GTM_ID, LEGAL, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
+import Script from 'next/script';
+import Consent from '@/components/chrome/Consent';
 import { getProjects } from '@/lib/data';
 
 // adjustFontFallback: false — sinon next/font intercale une police « Fallback » (Arial ajusté) couvrant
@@ -68,12 +70,27 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
         <noscript><style>{'body{opacity:1}.split .w>span,.fade,.frame,.reveal{opacity:1;transform:none}'}</style></noscript>
+        {GTM_ID ? (
+          /* Mode consentement Google : tout est refusé par défaut, puis on reprend le choix déjà fait (6 mois).
+             Pas de mesure sur /admin. Tag Manager se charge ensuite et lit ces réglages. */
+          <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});
+gtag('set','ads_data_redaction',true);
+try{var c=JSON.parse(localStorage.getItem('${CONSENT_KEY}')||'null');if(c&&Date.now()-c.at<15724800000&&c.v==='granted')gtag('consent','update',{analytics_storage:'granted'});}catch(e){}
+gtag('js',new Date());` }} />
+        ) : null}
       </head>
       <body>
         <Nav />
         <MotionRuntime>{children}</MotionRuntime>
         <Footer />
         <CommandPalette projects={(await getProjects()).map(({ slug, title, tagline, id }) => ({ slug, title, tagline, id }))} />
+        {GTM_ID ? (
+          <>
+            <Consent />
+            <Script id="gtm" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `if(!location.pathname.startsWith('/admin')){(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');}` }} />
+          </>
+        ) : null}
       </body>
     </html>
   );

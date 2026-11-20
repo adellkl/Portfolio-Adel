@@ -1423,3 +1423,25 @@ section.block.ac{padding:32px 0 160px}
   .problems .card p{flex:1 1 100%;order:3}
 }
 @media (pointer:coarse){.foot-kbd{display:none}}
+
+/* Bandeau cookies (components/chrome/Consent.tsx) */
+.cookie{position:fixed;right:24px;bottom:24px;z-index:115;display:flex;align-items:center;gap:20px;max-width:560px;padding:16px 16px 16px 20px;border-radius:12px;background:var(--obsidian);box-shadow:rgba(255,255,255,.06) 0 0 0 1px inset,rgba(0,0,0,.6) 0 0 0 1px;opacity:0;transform:translateY(12px);transition:opacity .35s var(--ease),transform .45s var(--ease);pointer-events:none}
+.cookie.show{opacity:1;transform:none;pointer-events:auto}
+.cookie p{font-size:13px;line-height:1.5;color:var(--fog)}
+.cookie p b{display:block;font-weight:510;color:var(--paper);margin-bottom:2px}
+.cookie p a{color:var(--mist);border-bottom:.5px solid var(--smoke)}
+.cookie-act{display:flex;gap:6px;flex:none}
+.cookie-act button{padding:8px 14px;border:0;border-radius:6px;font:510 13px var(--sans);cursor:pointer;transition:background .2s,color .2s}
+.cookie-yes{background:var(--paper);color:var(--void)}
+.cookie-yes:hover{background:var(--bone)}
+.cookie-no{background:none;color:var(--mist);box-shadow:var(--inset)}
+.cookie-no:hover{color:var(--paper);background:rgba(255,255,255,.03)}
+.foot-cookies{border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;transition:color .2s}
+.foot-cookies:hover{color:var(--paper)}
+@media (max-width:640px){
+  .cookie{left:16px;right:16px;bottom:16px;flex-direction:column;align-items:stretch;gap:12px;max-width:none}
+  .cookie-act button{flex:1;padding:11px 12px}
+  .consent-open .snd-hint{opacity:0;pointer-events:none}
+}
+@media (min-width:641px){.consent-open .snd-hint{bottom:24px}}
+@media (prefers-reduced-motion:reduce){.cookie{transition:opacity .2s;transform:none}}
